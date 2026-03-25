@@ -35,12 +35,14 @@ public class MENU extends JFrame {
         nav.setBackground(ORANGE_DARK);
         nav.setLayout(new GridLayout(1, 3, 30, 0));
         nav.setBorder(new EmptyBorder(20, 60, 20, 60));
-        nav.add(navBtn("Docs", WHITE));
-        nav.add(navBtn("Play", WHITE));
+        nav.add(navBtn("Setting", WHITE));
+        nav.add(navBtn("Login", WHITE));
         nav.add(navBtn("About Us", WHITE));
 
         top.add(nav);
         root.add(top, BorderLayout.NORTH);
+
+
 
         // ---------- Phần giữa ----------
         JPanel mid = new JPanel(new GridBagLayout());
@@ -52,14 +54,17 @@ public class MENU extends JFrame {
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 40, 0, 40);
 
+        //Điểm của ng chơi 1
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         mid.add(scoreCard("Player 1", "SCORE", "0", ORANGE, TEXT_BLACK, WHITE), gbc);
-
+        
+        //Bàn cờ
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.CENTER;
         mid.add(boardPanel(BOARD_BEIGE, TILE_BROWN, WHITE), gbc);
 
+        //Điểm của ng chơi 2
         gbc.gridx = 2;
         gbc.anchor = GridBagConstraints.EAST;
         mid.add(scoreCard("Player 2", "SCORE", "0", ORANGE, TEXT_BLACK, WHITE), gbc);
