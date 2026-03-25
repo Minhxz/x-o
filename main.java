@@ -1,9 +1,10 @@
-import GUI.GUI;
+import GUI.MENU;
 
 public class main {
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> {
-            new GUI();
+            MENU ui = new MENU();
+            ui.setVisible(true);
         });
     }
 }
