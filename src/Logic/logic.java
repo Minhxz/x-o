@@ -16,6 +16,8 @@ public class logic {
     private static int player1Score = 0;
     private static int player2Score = 0;
 
+
+    
     // ===== INITIALIZE GAME WITH MENU BOARD =====
     public static void initMenuGame(JButton[] boardButtons, JLabel status, JLabel p1Score, JLabel p2Score) {
         btn = new JButton[3][3];

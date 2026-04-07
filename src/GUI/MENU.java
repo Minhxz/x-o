@@ -32,7 +32,7 @@ public class MENU extends JFrame {
         root.setBackground(BG_RED);
         setContentPane(root);
 
-        // ---------- HEADER TITLE ----------
+        // ---------- Phầm tiêu đề ----------
         JPanel headerPanel = new JPanel(new GridBagLayout());
         headerPanel.setBackground(BG_RED);
         headerPanel.setBorder(new EmptyBorder(20, 20, 10, 20));
@@ -84,18 +84,19 @@ public class MENU extends JFrame {
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 40, 0, 40);
 
-        // Create score cards FIRST to set player1ScoreLabel and player2ScoreLabel
+       // Người chơi 1
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         JComponent player1Card = scoreCard("Player 1's", "SCORE", ORANGE, TEXT_BLACK, WHITE, true);
         mid.add(player1Card, gbc);
 
+        // Người chơi 2
         gbc.gridx = 2;
         gbc.anchor = GridBagConstraints.EAST;
         JComponent player2Card = scoreCard("Player 2's", "SCORE", ORANGE, TEXT_BLACK, WHITE, false);
         mid.add(player2Card, gbc);
         
-        // Board with status label
+        //Lượt chơi
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.CENTER;
         
@@ -113,7 +114,7 @@ public class MENU extends JFrame {
         
         mid.add(boardContainer, gbc);
 
-        // Initialize game AFTER all score labels are created
+       
         logic.initMenuGame(boardButtons, statusLabel, player1ScoreLabel, player2ScoreLabel);
 
         // ----------Nút Dưới  ----------
@@ -153,7 +154,7 @@ public class MENU extends JFrame {
         b.setFocusPainted(false);
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // Hover effect
+        // Hiệu ứng hover chuột
         b.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 b.setFont(new Font("Arial", Font.BOLD, 20));
@@ -196,7 +197,7 @@ public class MENU extends JFrame {
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(25, 20, 25, 20));
 
-        // Title with symbol
+        // Title with player symbol
         String symbol = isPlayer1 ? "X" : "O";
         JLabel title = new JLabel(
                 "<html><div style='text-align:center;'>[" + symbol + "]<br/>" + player + "<br/>" + scoreWord + "</div></html>",
