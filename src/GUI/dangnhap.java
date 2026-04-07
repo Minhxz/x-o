@@ -4,22 +4,19 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class dangnhap {
-    public static void main(String[] args) {
-
+public class dangnhap extends JFrame {
+    public dangnhap() {
         // ===== COLOR =====
         Color BG1 = new Color(0x7A1E1E);
         Color BG2 = new Color(0xC0392B);
-        Color CARD = new Color(255,255,255,240);
         Color PRIMARY = new Color(0xF08A24);
         Color PRIMARY_HOVER = new Color(0xD9731A);
-        Color TEXT = new Color(0x2C2C2C);
         Color BORDER = new Color(220,220,220);
 
-        JFrame frame = new JFrame("Đăng nhập");
-        frame.setSize(1000,700);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        setTitle("Đăng nhập");
+        setSize(1000,700);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
 
         // ===== BACKGROUND =====
         JPanel background = new JPanel() {
@@ -108,19 +105,19 @@ public class dangnhap {
         card.add(loginBtn);
 
         background.add(card);
-        frame.add(background);
+        add(background);
 
         // ===== EVENT LOGIN (ĐÃ FIX) =====
         loginBtn.addActionListener(e -> {
 
             // kiểm tra đơn giản
             if(user.getText().isEmpty() || pass.getPassword().length == 0){
-                JOptionPane.showMessageDialog(frame, "Nhập đủ thông tin!");
+                JOptionPane.showMessageDialog(dangnhap.this, "Nhập đủ thông tin!");
                 return;
             }
 
             // ===== DIALOG =====
-            JDialog dialog = new JDialog(frame, "Bạn là ai?", true);
+            JDialog dialog = new JDialog(dangnhap.this, "Bạn là ai?", true);
             dialog.setSize(400,300);
             dialog.setLayout(new BorderLayout());
 
@@ -161,15 +158,19 @@ public class dangnhap {
                     JOptionPane.showMessageDialog(dialog, "Nhập tên đi!");
                 } else {
                     dialog.dispose();
-                    JOptionPane.showMessageDialog(frame, "Xin chào " + name);
+                    JOptionPane.showMessageDialog(dangnhap.this, "Xin chào " + name);
                 }
             });
 
-            dialog.setLocationRelativeTo(frame);
+            dialog.setLocationRelativeTo(dangnhap.this);
             dialog.setVisible(true);
         });
 
-        frame.setVisible(true);
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new dangnhap());
     }
 
     // ===== STYLE INPUT =====

@@ -55,17 +55,17 @@ public class MENU extends JFrame {
         nav.setBorder(new EmptyBorder(15, 50, 15, 50));
         
         JButton settingBtn = navBtn("[*] Settings", WHITE);
-        JButton scoreBtn = navBtn("[#] Scores", WHITE);
+        JButton loginBtn = navBtn("[→] Login", WHITE);
         JButton rulesBtn = navBtn("[i] Rules", WHITE);
         JButton exitBtn = navBtn("[x] Exit", WHITE);
         
         settingBtn.addActionListener(e -> logic.handleSettingsClick());
-        scoreBtn.addActionListener(e -> logic.handleScoresClick());
+        loginBtn.addActionListener(e -> new dangnhap());
         rulesBtn.addActionListener(e -> logic.handleRulesClick());
         exitBtn.addActionListener(e -> logic.handleExitClick());
         
         nav.add(settingBtn);
-        nav.add(scoreBtn);
+        nav.add(loginBtn);
         nav.add(rulesBtn);
         nav.add(exitBtn);
 
