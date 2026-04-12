@@ -9,9 +9,9 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class dangnhap extends JFrame {
+public class Signup extends JFrame {
 
-    public dangnhap() {
+    public Signup() {
         Theme theme = logic.getTheme();
         Color BG = theme.background;
         Color PRIMARY = theme.primary;
@@ -19,8 +19,8 @@ public class dangnhap extends JFrame {
         Color TEXT = theme.text;
         Color ACCENT = theme.accent;
 
-        setTitle("Player Login");
-        setSize(700, 480);
+        setTitle("Create Account");
+        setSize(760, 560);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -32,11 +32,11 @@ public class dangnhap extends JFrame {
         JPanel header = new JPanel();
         header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        JLabel title = new JLabel("WELCOME BACK");
+        JLabel title = new JLabel("CREATE ACCOUNT");
         title.setFont(new Font("SansSerif", Font.BOLD, 30));
         title.setForeground(ACCENT);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel subtitle = new JLabel("Sign in to continue your game");
+        JLabel subtitle = new JLabel("Join the Tic Tac Toe community");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 15));
         subtitle.setForeground(TEXT);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -60,28 +60,28 @@ public class dangnhap extends JFrame {
         leftInfo.setBorder(new EmptyBorder(20, 20, 20, 20));
         leftInfo.setLayout(new BoxLayout(leftInfo, BoxLayout.Y_AXIS));
 
-        JLabel infoTitle = new JLabel("New here?");
+        JLabel infoTitle = new JLabel("Already have an account?");
         infoTitle.setFont(new Font("SansSerif", Font.BOLD, 18));
         infoTitle.setForeground(ACCENT);
         infoTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel infoText = new JLabel("Create an account to start playing.");
+        JLabel infoText = new JLabel("Sign in to continue playing.");
         infoText.setFont(new Font("SansSerif", Font.PLAIN, 13));
         infoText.setForeground(TEXT);
         infoText.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JComponent signupBtn = outlineButton("Create Account", PRIMARY, TEXT, ACCENT, () -> {
-            Signup signup = new Signup();
-            signup.setVisible(true);
+        JComponent loginBtn = outlineButton("Back to Login", PRIMARY, TEXT, ACCENT, () -> {
+            dangnhap login = new dangnhap();
+            login.setVisible(true);
             dispose();
         });
-        signupBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        loginBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         leftInfo.add(infoTitle);
         leftInfo.add(Box.createVerticalStrut(6));
         leftInfo.add(infoText);
         leftInfo.add(Box.createVerticalStrut(14));
-        leftInfo.add(signupBtn);
+        leftInfo.add(loginBtn);
         leftInfo.add(Box.createVerticalGlue());
 
         RoundedPanel formCard = new RoundedPanel(22);
@@ -98,29 +98,73 @@ public class dangnhap extends JFrame {
 
         JLabel userLabel = label("Username", TEXT);
         JTextField userField = field();
+        JLabel emailLabel = label("Email", TEXT);
+        JTextField emailField = field();
+        JLabel phoneLabel = label("Phone", TEXT);
+        JTextField phoneField = field();
         JLabel passLabel = label("Password", TEXT);
         JPasswordField passField = passwordField();
+        JLabel confirmLabel = label("Confirm Password", TEXT);
+        JPasswordField confirmField = passwordField();
 
-        formCard.add(userLabel, gbc);
-        gbc.gridy++;
-        formCard.add(userField, gbc);
-        gbc.gridy++;
-        formCard.add(passLabel, gbc);
-        gbc.gridy++;
-        formCard.add(passField, gbc);
+        JPanel formGrid = new JPanel(new GridBagLayout());
+        formGrid.setOpaque(false);
+        GridBagConstraints form = new GridBagConstraints();
+        form.gridx = 0;
+        form.gridy = 0;
+        form.weightx = 1;
+        form.insets = new Insets(6, 0, 6, 12);
+        form.fill = GridBagConstraints.HORIZONTAL;
+
+        formGrid.add(userLabel, form);
+        form.gridy++;
+        formGrid.add(userField, form);
+        form.gridy++;
+        formGrid.add(emailLabel, form);
+        form.gridy++;
+        formGrid.add(emailField, form);
+        form.gridy++;
+        formGrid.add(phoneLabel, form);
+        form.gridy++;
+        formGrid.add(phoneField, form);
+
+        form.gridx = 1;
+        form.gridy = 0;
+        form.insets = new Insets(6, 0, 6, 0);
+
+        formGrid.add(passLabel, form);
+        form.gridy++;
+        formGrid.add(passField, form);
+        form.gridy++;
+        formGrid.add(confirmLabel, form);
+        form.gridy++;
+        formGrid.add(confirmField, form);
+        form.gridy++;
+        formGrid.add(new JLabel(), form);
+        form.gridy++;
+        formGrid.add(new JLabel(), form);
+
+        gbc.gridwidth = 2;
+        formCard.add(formGrid, gbc);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 6));
         actions.setOpaque(false);
 
-        JComponent continueBtn = actionButton("Continue", PRIMARY, TEXT, ACCENT, () -> {
+        JComponent createBtn = actionButton("Create Account", PRIMARY, TEXT, ACCENT, () -> {
+            String pass = new String(passField.getPassword());
+            String confirm = new String(confirmField.getPassword());
+            if (!pass.equals(confirm)) {
+                JOptionPane.showMessageDialog(this, "Passwords do not match.", "Signup", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             MainMenu menu = new MainMenu();
             menu.setVisible(true);
             dispose();
         });
-        JComponent exitBtn = outlineButton("Exit", PRIMARY_DARK, TEXT, ACCENT, () -> System.exit(0));
+        JComponent cancelBtn = outlineButton("Exit", PRIMARY_DARK, TEXT, ACCENT, () -> System.exit(0));
 
-        actions.add(continueBtn);
-        actions.add(exitBtn);
+        actions.add(createBtn);
+        actions.add(cancelBtn);
 
         JPanel formWrap = new JPanel(new BorderLayout());
         formWrap.setOpaque(false);
@@ -135,12 +179,12 @@ public class dangnhap extends JFrame {
         col.weighty = 1;
 
         col.gridx = 0;
-        col.weightx = 0.4;
+        col.weightx = 0.38;
         col.insets = new Insets(0, 0, 0, 14);
         columns.add(leftInfo, col);
 
         col.gridx = 1;
-        col.weightx = 0.6;
+        col.weightx = 0.62;
         col.insets = new Insets(0, 0, 0, 0);
         columns.add(formWrap, col);
 
@@ -165,7 +209,7 @@ public class dangnhap extends JFrame {
         field.setBackground(new Color(255, 255, 255, 245));
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(255, 255, 255, 120), 1),
-                new EmptyBorder(10, 12, 10, 12))); 
+                new EmptyBorder(10, 12, 10, 12)));
         return field;
     }
 
@@ -177,7 +221,7 @@ public class dangnhap extends JFrame {
         field.setBackground(new Color(255, 255, 255, 245));
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(255, 255, 255, 120), 1),
-                new EmptyBorder(10, 12, 10, 12))); 
+                new EmptyBorder(10, 12, 10, 12)));
         return field;
     }
 
@@ -299,4 +343,3 @@ public class dangnhap extends JFrame {
             super.paintComponent(g);
         }
     }
-}
