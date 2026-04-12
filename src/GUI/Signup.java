@@ -342,4 +342,4 @@ public class Signup extends JFrame {
             g2.dispose();
             super.paintComponent(g);
         }
-    }
+    }}
