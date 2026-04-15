@@ -1,7 +1,6 @@
 import GUI.dangnhap;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class Main {
     private static void setGlobalFont(Font font) {
