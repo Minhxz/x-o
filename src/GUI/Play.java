@@ -1,7 +1,6 @@
 package GUI;
 
 import Fancy.Theme;
-import Logic.MenuActions;
 import Logic.logic;
 
 import javax.swing.*;
@@ -55,14 +54,14 @@ public class Play extends JFrame {
         JComponent musicBtn = navButton("🎵 Music", TEXT, ACCENT, () -> Music.gameMusic.playBackgroundMusic());
         JComponent settingBtn = navButton("⚙ Settings", TEXT, ACCENT, () -> logic.handleSettingsClick());
         
-        // NÚT HISTORY - Đã được kết nối trực tiếp với MenuActions.showHistory
-        JComponent historyBtn = navButton("🕒 History", TEXT, ACCENT, () -> MenuActions.showHistory(this));
+        // ĐÃ THAY NÚT RULES THÀNH NÚT HISTORY
+        JComponent historyBtn = navButton("🕒 History", TEXT, ACCENT, () -> logic.handleHistoryClick());
         
         JComponent exitBtn = navButton("✖ Exit", TEXT, ACCENT, () -> { logic.stopTimer(); logic.handleExitClick(); });
 
         navBar.add(musicBtn);
         navBar.add(settingBtn);
-        navBar.add(historyBtn); 
+        navBar.add(historyBtn); // Đổi ở đây
         navBar.add(exitBtn);
 
         headerPanel.add(navBar, BorderLayout.EAST);

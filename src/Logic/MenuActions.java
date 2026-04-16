@@ -8,8 +8,14 @@ import GUI.Play;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 public class MenuActions {
 
@@ -121,6 +127,56 @@ public class MenuActions {
 
         logic.setPlayerSymbols(player1, player2);
         themedMessageDialog(parent, "Characters set to " + player1 + " and " + player2, "Character");
+    }
+
+    // --- NEW HISTORY METHOD ---
+    public static void showHistory(JFrame parent) {
+        // NOTE: Change 'history' to your exact table name if it differs (e.g., 'matches' or 'game_history')
+        String query = "SELECT * FROM history"; 
+
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            // 1. Extract column names from the table metadata
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            Vector<String> columnNames = new Vector<>();
+            for (int column = 1; column <= columnCount; column++) {
+                columnNames.add(metaData.getColumnName(column));
+            }
+
+            // 2. Extract the row data
+            Vector<Vector<Object>> data = new Vector<>();
+            while (rs.next()) {
+                Vector<Object> row = new Vector<>();
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    row.add(rs.getObject(columnIndex));
+                }
+                data.add(row);
+            }
+
+            // 3. Create a JTable to view the data
+            JTable table = new JTable(data, columnNames);
+            table.setFillsViewportHeight(true);
+            table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
+            table.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            table.setRowHeight(25);
+            table.setEnabled(false); // Make table read-only
+
+            JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new Dimension(600, 300));
+
+            // 4. Display the table inside your custom themed dialog
+            withTheme(logic.getTheme(), () -> {
+                JOptionPane.showMessageDialog(parent, scrollPane, "Match History", JOptionPane.PLAIN_MESSAGE);
+                return null;
+            });
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            themedMessageDialog(parent, "Failed to load history from database.\nMake sure XAMPP is running and the 'history' table exists.\n\nError: " + e.getMessage(), "Database Error");
+        }
     }
 
     // --- Dialog Helper Methods ---

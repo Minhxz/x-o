@@ -3,7 +3,7 @@ package GUI;
 import Fancy.Theme;
 import Logic.Database;
 import Logic.logic;
-import Music.gameMusic; // Added Database import
+import Music.gameMusic;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -15,8 +15,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class dangnhap extends JFrame {
-
-    // Removed the static Account class and userDatabase HashMap
 
     public dangnhap() {
         Theme theme = logic.getTheme();
@@ -111,48 +109,50 @@ public class dangnhap extends JFrame {
         JComponent loginBtn = actionButton("LOGIN", PRIMARY, TEXT, ACCENT, () -> {
             gameMusic.playMenuClick(); 
             
-            String user = userField.getText().trim();
-            String email = emailField.getText().trim();
-            String password = new String(passField.getPassword());
+            String userInput = userField.getText().trim();
+            String emailInput = emailField.getText().trim();
+            String passwordInput = new String(passField.getPassword());
             
-            if (user.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ (Tên, Email, Mật khẩu)!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            if (userInput.isEmpty() || emailInput.isEmpty() || passwordInput.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // --- KIỂM TRA ĐỊNH DẠNG EMAIL ---
-            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-                JOptionPane.showMessageDialog(this, "Định dạng Email không hợp lệ!\n(Ví dụ: email@gmail.com)", "Lỗi Email", JOptionPane.ERROR_MESSAGE);
+            if (!emailInput.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                JOptionPane.showMessageDialog(this, "Email không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // --- CẬP NHẬT DATABASE SELECT ---
             String sql = "SELECT * FROM accounts WHERE email = ? AND password = ?";
 
             try (Connection conn = Database.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 
-                pstmt.setString(1, email);
-                pstmt.setString(2, password);
+                pstmt.setString(1, emailInput);
+                pstmt.setString(2, passwordInput);
                 ResultSet rs = pstmt.executeQuery();
 
                 if (rs.next()) {
                     String dbUsername = rs.getString("username");
                     
-                    if (dbUsername.equals(user)) {
+                    if (dbUsername.equals(userInput)) {
+                        // --- CRITICAL UPDATE: PASS EMAIL TO LOGIC ---
+                        logic.setCurrentAccountEmail(emailInput); 
+                        logic.setPlayerNames(dbUsername, "Player 2"); 
+                        
                         logic.setPlayerSymbols("X", "O"); 
                         MainMenu menu = new MainMenu();
                         menu.setVisible(true);
                         dispose();
                     } else {
-                        JOptionPane.showMessageDialog(this, "Tên người dùng không khớp với Email này!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Tên người dùng không khớp!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "Email hoặc Mật khẩu không chính xác!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Email hoặc Mật khẩu không chính xác!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
 
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi kết nối cơ sở dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Lỗi kết nối: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         });
         
@@ -180,6 +180,10 @@ public class dangnhap extends JFrame {
         setVisible(true);
     }
 
+    // Helper methods (label, field, passwordField, actionButton, outlineButton) 
+    // and inner classes (GradientPanel, RoundedPanel, RoundedButton) 
+    // remain exactly the same as your provided code...
+    
     private static JLabel label(String text, Color fg) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.PLAIN, 16)); 
