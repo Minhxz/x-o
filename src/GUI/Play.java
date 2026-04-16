@@ -51,7 +51,7 @@ public class Play extends JFrame {
         JPanel navBar = new JPanel(new GridLayout(1, 4, 12, 0));
         navBar.setOpaque(false);
 
-        JComponent musicBtn = navButton("🎵 Music", TEXT, ACCENT, () -> Music.gameMusic.toggleBackgroundMusic());
+        JComponent musicBtn = navButton("🎵 Music", TEXT, ACCENT, () -> Music.gameMusic.playBackgroundMusic());
         JComponent settingBtn = navButton("⚙ Settings", TEXT, ACCENT, () -> logic.handleSettingsClick());
         
         // ĐÃ THAY NÚT RULES THÀNH NÚT HISTORY

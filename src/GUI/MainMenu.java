@@ -58,10 +58,10 @@ public class MainMenu extends JFrame {
 
         RoundedPanel menuCard = new RoundedPanel(28);
         menuCard.setBackground(new Color(0, 0, 0, 130));
-        menuCard.setBorder(new EmptyBorder(25, 60, 25, 60));
+        menuCard.setBorder(new EmptyBorder(20, 60, 20, 60));
         
-        // Mở rộng Grid lên 7 hàng để chứa 7 nút
-        menuCard.setLayout(new GridLayout(7, 1, 0, 12));
+        // Nâng cấp lên 8 hàng để chứa BGM và SFX riêng biệt
+        menuCard.setLayout(new GridLayout(8, 1, 0, 10));
 
         JComponent playBtn = gameButton("▶ Play", PRIMARY, TEXT, ACCENT, () -> MenuActions.openPlay(this));
         JComponent nameBtn = gameButton("✏ Names", PRIMARY, TEXT, ACCENT, () -> MenuActions.showNameDialog(this));
@@ -69,7 +69,10 @@ public class MainMenu extends JFrame {
         JComponent timerBtn = gameButton("⏳ Timer", PRIMARY, TEXT, ACCENT, () -> MenuActions.showTimerDialog(this));
         JComponent colorBtn = gameButton("🎨 Color", PRIMARY, TEXT, ACCENT, () -> MenuActions.showThemeDialog(this));
         JComponent characterBtn = gameButton("★ Character", PRIMARY, TEXT, ACCENT, () -> MenuActions.showCharacterDialog(this));
-        JComponent musicBtn = gameButton("🎵 Music: ON/OFF", PRIMARY, TEXT, ACCENT, () -> Music.gameMusic.toggleBackgroundMusic());
+        
+        // 2 nút âm thanh mới
+        JComponent bgmBtn = gameButton("🎵 BGM: ON/OFF", PRIMARY, TEXT, ACCENT, () -> Music.gameMusic.toggleBGM());
+        JComponent sfxBtn = gameButton("🔊 SFX: ON/OFF", PRIMARY, TEXT, ACCENT, () -> Music.gameMusic.toggleSFX());
 
         menuCard.add(playBtn);
         menuCard.add(nameBtn);
@@ -77,7 +80,8 @@ public class MainMenu extends JFrame {
         menuCard.add(timerBtn);
         menuCard.add(colorBtn);
         menuCard.add(characterBtn);
-        menuCard.add(musicBtn);
+        menuCard.add(bgmBtn); // Nút Nhạc nền
+        menuCard.add(sfxBtn); // Nút Tiếng động
 
         center.add(menuCard);
         root.add(center, BorderLayout.CENTER);
@@ -94,7 +98,7 @@ public class MainMenu extends JFrame {
     private static JComponent gameButton(String text, Color bg, Color fg, Color glow, Runnable action) {
         JButton btn = new JButton(text);
         btn.setForeground(fg);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 22)); // Thu nhỏ font một xíu để các nút cân đối
+        btn.setFont(new Font("SansSerif", Font.BOLD, 22)); 
         btn.setOpaque(false);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
@@ -120,7 +124,7 @@ public class MainMenu extends JFrame {
         return wrap;
     }
 
-    // ... (Giữ nguyên các class GradientPanel, RoundedPanel, RoundedButton)
+    // Các class vẽ giao diện (Giữ nguyên)
     static class GradientPanel extends JPanel {
         private final Color top; private final Color bottom;
         GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }
