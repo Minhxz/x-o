@@ -1,32 +1,22 @@
 package GUI;
 
 import Fancy.Theme;
+import Logic.Database;
 import Logic.logic;
-import Music.gameMusic;
+import Music.gameMusic; // Added Database import
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class dangnhap extends JFrame {
 
-    public static class Account {
-        public String username;
-        public String email;
-        public String phone;
-        public String password;
-
-        public Account(String username, String email, String phone, String password) {
-            this.username = username;
-            this.email = email;
-            this.phone = phone;
-            this.password = password;
-        }
-    }
-
-    public static HashMap<String, Account> userDatabase = new HashMap<>();
+    // Removed the static Account class and userDatabase HashMap
 
     public dangnhap() {
         Theme theme = logic.getTheme();
@@ -136,20 +126,33 @@ public class dangnhap extends JFrame {
                 return;
             }
 
-            if (userDatabase.containsKey(email)) {
-                Account acc = userDatabase.get(email);
-                if (acc.username.equals(user) && acc.password.equals(password)) {
+            // --- CẬP NHẬT DATABASE SELECT ---
+            String sql = "SELECT * FROM accounts WHERE email = ? AND password = ?";
+
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, email);
+                pstmt.setString(2, password);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    String dbUsername = rs.getString("username");
                     
-                    logic.setPlayerSymbols("X", "O"); 
-                    
-                    MainMenu menu = new MainMenu();
-                    menu.setVisible(true);
-                    dispose();
+                    if (dbUsername.equals(user)) {
+                        logic.setPlayerSymbols("X", "O"); 
+                        MainMenu menu = new MainMenu();
+                        menu.setVisible(true);
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Tên người dùng không khớp với Email này!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else {
-                    JOptionPane.showMessageDialog(this, "Tên người dùng hoặc Mật khẩu không khớp!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Email hoặc Mật khẩu không chính xác!", "Lỗi đăng nhập", JOptionPane.ERROR_MESSAGE);
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "Email này chưa được đăng ký. Vui lòng Sign Up!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi kết nối cơ sở dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         });
         

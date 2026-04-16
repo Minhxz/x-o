@@ -3,5 +3,11 @@
         "x-o/src",
         "x-o/out",
         "src"
-    ]
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "/^powershell -NoProfile -Command \"Set-Location 'c:\\\\Users\\\\Admin\\\\Desktop\\\\btl java\\\\x-o'; Get-Item 'resources\\\\music\\\\background\\.wav' \\| Format-List FullName,Exists\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }

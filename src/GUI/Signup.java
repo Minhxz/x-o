@@ -1,11 +1,16 @@
 package GUI;
 
 import Fancy.Theme;
+import Logic.Database;
 import Logic.logic;
-import Music.gameMusic;
+import Music.gameMusic; // Added Database import
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -136,20 +141,30 @@ public class Signup extends JFrame {
                 return;
             }
             
-            if (dangnhap.userDatabase.containsKey(email)) {
-                JOptionPane.showMessageDialog(this, "Email này đã được đăng ký!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            // --- CẬP NHẬT DATABASE INSERT ---
+            String sql = "INSERT INTO accounts (email, username, phone, password) VALUES (?, ?, ?, ?)";
 
-            dangnhap.Account newAccount = new dangnhap.Account(user, email, phone, pass);
-            dangnhap.userDatabase.put(email, newAccount);
-            
-            JOptionPane.showMessageDialog(this, "Đã tạo tài khoản thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-            
-            userField.setText("");
-            emailField.setText("");
-            phoneField.setText("");
-            passField.setText("");
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, email);
+                pstmt.setString(2, user);
+                pstmt.setString(3, phone);
+                pstmt.setString(4, pass);
+                pstmt.executeUpdate();
+
+                JOptionPane.showMessageDialog(this, "Đã tạo tài khoản thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                
+                userField.setText("");
+                emailField.setText("");
+                phoneField.setText("");
+                passField.setText("");
+
+            } catch (SQLIntegrityConstraintViolationException ex) {
+                JOptionPane.showMessageDialog(this, "Email này đã được đăng ký!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi kết nối cơ sở dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         });
         
         JComponent cancelBtn = outlineButton("Back", PRIMARY_DARK, TEXT, ACCENT, () -> {
