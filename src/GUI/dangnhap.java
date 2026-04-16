@@ -130,12 +130,16 @@ public class dangnhap extends JFrame {
                 return;
             }
 
+            // --- KIỂM TRA ĐỊNH DẠNG EMAIL ---
+            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                JOptionPane.showMessageDialog(this, "Định dạng Email không hợp lệ!\n(Ví dụ: email@gmail.com)", "Lỗi Email", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             if (userDatabase.containsKey(email)) {
                 Account acc = userDatabase.get(email);
                 if (acc.username.equals(user) && acc.password.equals(password)) {
                     
-                    // --- ĐÃ SỬA LỖI TẠI ĐÂY ---
-                    // Cố định ký hiệu mặc định là X và O thay vì lấy tên người dùng
                     logic.setPlayerSymbols("X", "O"); 
                     
                     MainMenu menu = new MainMenu();

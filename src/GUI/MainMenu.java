@@ -13,6 +13,8 @@ import java.awt.event.MouseEvent;
 public class MainMenu extends JFrame {
 
     public MainMenu() {
+        Music.gameMusic.playBackgroundMusic();
+
         Theme theme = logic.getTheme();
 
         Color BG = theme.background;
@@ -28,12 +30,12 @@ public class MainMenu extends JFrame {
 
         GradientPanel root = new GradientPanel(BG, PRIMARY_DARK.darker());
         root.setLayout(new BorderLayout());
-        root.setBorder(new EmptyBorder(20, 30, 30, 30));
+        root.setBorder(new EmptyBorder(10, 30, 20, 30));
         setContentPane(root);
 
         JPanel headerPanel = new JPanel(new GridBagLayout());
         headerPanel.setOpaque(false);
-        headerPanel.setBorder(new EmptyBorder(20, 10, 10, 10));
+        headerPanel.setBorder(new EmptyBorder(10, 10, 5, 10));
 
         JLabel titleLabel = new JLabel("TIC TAC TOE");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 60));
@@ -52,22 +54,30 @@ public class MainMenu extends JFrame {
 
         JPanel center = new JPanel(new GridBagLayout());
         center.setOpaque(false);
-        center.setBorder(new EmptyBorder(20, 20, 40, 20));
+        center.setBorder(new EmptyBorder(10, 20, 20, 20));
 
         RoundedPanel menuCard = new RoundedPanel(28);
         menuCard.setBackground(new Color(0, 0, 0, 130));
-        menuCard.setBorder(new EmptyBorder(30, 60, 30, 60));
-        menuCard.setLayout(new GridLayout(4, 1, 0, 18));
+        menuCard.setBorder(new EmptyBorder(25, 60, 25, 60));
+        
+        // Mở rộng Grid lên 7 hàng để chứa 7 nút
+        menuCard.setLayout(new GridLayout(7, 1, 0, 12));
 
         JComponent playBtn = gameButton("▶ Play", PRIMARY, TEXT, ACCENT, () -> MenuActions.openPlay(this));
+        JComponent nameBtn = gameButton("✏ Names", PRIMARY, TEXT, ACCENT, () -> MenuActions.showNameDialog(this));
         JComponent modeBtn = gameButton("⚙ Mode", PRIMARY, TEXT, ACCENT, () -> MenuActions.showModeDialog(this));
+        JComponent timerBtn = gameButton("⏳ Timer", PRIMARY, TEXT, ACCENT, () -> MenuActions.showTimerDialog(this));
         JComponent colorBtn = gameButton("🎨 Color", PRIMARY, TEXT, ACCENT, () -> MenuActions.showThemeDialog(this));
         JComponent characterBtn = gameButton("★ Character", PRIMARY, TEXT, ACCENT, () -> MenuActions.showCharacterDialog(this));
+        JComponent musicBtn = gameButton("🎵 Music: ON/OFF", PRIMARY, TEXT, ACCENT, () -> Music.gameMusic.toggleBackgroundMusic());
 
         menuCard.add(playBtn);
+        menuCard.add(nameBtn);
         menuCard.add(modeBtn);
+        menuCard.add(timerBtn);
         menuCard.add(colorBtn);
         menuCard.add(characterBtn);
+        menuCard.add(musicBtn);
 
         center.add(menuCard);
         root.add(center, BorderLayout.CENTER);
@@ -84,7 +94,7 @@ public class MainMenu extends JFrame {
     private static JComponent gameButton(String text, Color bg, Color fg, Color glow, Runnable action) {
         JButton btn = new JButton(text);
         btn.setForeground(fg);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        btn.setFont(new Font("SansSerif", Font.BOLD, 22)); // Thu nhỏ font một xíu để các nút cân đối
         btn.setOpaque(false);
         btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
@@ -92,12 +102,16 @@ public class MainMenu extends JFrame {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         RoundedButton wrap = new RoundedButton(22, bg, glow);
-        wrap.setBorder(new EmptyBorder(12, 20, 12, 20));
+        wrap.setBorder(new EmptyBorder(10, 20, 10, 20));
         wrap.setLayout(new BorderLayout());
         wrap.add(btn, BorderLayout.CENTER);
         wrap.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        btn.addActionListener(e -> action.run());
+        btn.addActionListener(e -> {
+            Music.gameMusic.playMenuClick(); 
+            action.run();
+        });
+        
         btn.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) { wrap.setHover(true); }
             @Override public void mouseExited(MouseEvent e) { wrap.setHover(false); }
@@ -106,74 +120,37 @@ public class MainMenu extends JFrame {
         return wrap;
     }
 
+    // ... (Giữ nguyên các class GradientPanel, RoundedPanel, RoundedButton)
     static class GradientPanel extends JPanel {
-        private final Color top;
-        private final Color bottom;
-
-        GradientPanel(Color top, Color bottom) {
-            this.top = top;
-            this.bottom = bottom;
-            setOpaque(false);
-        }
-
+        private final Color top; private final Color bottom;
+        GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setPaint(new GradientPaint(0, 0, top, 0, getHeight(), bottom));
-            g2.fillRect(0, 0, getWidth(), getHeight());
-            g2.dispose();
-            super.paintComponent(g);
+            g2.fillRect(0, 0, getWidth(), getHeight()); g2.dispose(); super.paintComponent(g);
         }
     }
-
     static class RoundedPanel extends JPanel {
-        private final int arc;
-        RoundedPanel(int arc) { this.arc = arc; setOpaque(false); }
-
+        private final int arc; RoundedPanel(int arc) { this.arc = arc; setOpaque(false); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getBackground());
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
-            g2.dispose();
-            super.paintComponent(g);
+            g2.setColor(getBackground()); g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+            g2.dispose(); super.paintComponent(g);
         }
     }
-
     static class RoundedButton extends JPanel {
-        private final int arc;
-        private final Color base;
-        private final Color glow;
-        private boolean hover;
-
-        RoundedButton(int arc, Color base, Color glow) {
-            this.arc = arc;
-            this.base = base;
-            this.glow = glow;
-            setOpaque(false);
-        }
-
-        void setHover(boolean hover) {
-            this.hover = hover;
-            repaint();
-        }
-
+        private final int arc; private final Color base; private final Color glow; private boolean hover;
+        RoundedButton(int arc, Color base, Color glow) { this.arc = arc; this.base = base; this.glow = glow; setOpaque(false); }
+        void setHover(boolean hover) { this.hover = hover; repaint(); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            g2.setColor(new Color(0, 0, 0, 90));
-            g2.fillRoundRect(4, 5, getWidth() - 8, getHeight() - 8, arc, arc);
-
-            Color fill = hover ? glow : base;
-            g2.setColor(fill);
-            g2.fillRoundRect(0, 0, getWidth() - 4, getHeight() - 4, arc, arc);
-
-            g2.setColor(new Color(255, 255, 255, hover ? 60 : 30));
-            g2.drawRoundRect(1, 1, getWidth() - 6, getHeight() - 6, arc, arc);
-
-            g2.dispose();
-            super.paintComponent(g);
+            g2.setColor(new Color(0, 0, 0, 90)); g2.fillRoundRect(4, 5, getWidth() - 8, getHeight() - 8, arc, arc);
+            Color fill = hover ? glow : base; g2.setColor(fill); g2.fillRoundRect(0, 0, getWidth() - 4, getHeight() - 4, arc, arc);
+            g2.setColor(new Color(255, 255, 255, hover ? 60 : 30)); g2.drawRoundRect(1, 1, getWidth() - 6, getHeight() - 6, arc, arc);
+            g2.dispose(); super.paintComponent(g);
         }
     }
 }

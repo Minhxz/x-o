@@ -123,6 +123,18 @@ public class Signup extends JFrame {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+
+            // --- KIỂM TRA ĐỊNH DẠNG EMAIL ---
+            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                JOptionPane.showMessageDialog(this, "Định dạng Email không hợp lệ!\n(Ví dụ: email@gmail.com)", "Lỗi Email", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // --- KIỂM TRA ĐỊNH DẠNG SỐ ĐIỆN THOẠI (10 CHỮ SỐ) ---
+            if (!phone.matches("^\\d{10}$")) {
+                JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ!\n(Phải bao gồm chính xác 10 chữ số)", "Lỗi Số điện thoại", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             
             if (dangnhap.userDatabase.containsKey(email)) {
                 JOptionPane.showMessageDialog(this, "Email này đã được đăng ký!", "Lỗi", JOptionPane.ERROR_MESSAGE);

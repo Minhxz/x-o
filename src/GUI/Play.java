@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 public class Play extends JFrame {
 
     private JLabel statusLabel;
+    private JLabel timerLabel;
     private JLabel player1ScoreLabel;
     private JLabel player2ScoreLabel;
     private JButton[] boardButtons;
@@ -29,7 +30,6 @@ public class Play extends JFrame {
         Color ACCENT = theme.accent;
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        // Thu nhỏ kích thước cửa sổ để vừa với màn hình laptop
         setSize(1280, 720);
         setLocationRelativeTo(null);
         setTitle("Tic Tac Toe - X O Game");
@@ -48,13 +48,15 @@ public class Play extends JFrame {
         titleLabel.setForeground(ACCENT);
         headerPanel.add(titleLabel, BorderLayout.WEST);
 
-        JPanel navBar = new JPanel(new GridLayout(1, 3, 12, 0));
+        JPanel navBar = new JPanel(new GridLayout(1, 4, 12, 0));
         navBar.setOpaque(false);
 
+        JComponent musicBtn = navButton("🎵 Music", TEXT, ACCENT, () -> Music.gameMusic.toggleBackgroundMusic());
         JComponent settingBtn = navButton("⚙ Settings", TEXT, ACCENT, () -> logic.handleSettingsClick());
         JComponent rulesBtn = navButton("ℹ Rules", TEXT, ACCENT, () -> logic.handleRulesClick());
-        JComponent exitBtn = navButton("✖ Exit", TEXT, ACCENT, () -> logic.handleExitClick());
+        JComponent exitBtn = navButton("✖ Exit", TEXT, ACCENT, () -> { logic.stopTimer(); logic.handleExitClick(); });
 
+        navBar.add(musicBtn);
         navBar.add(settingBtn);
         navBar.add(rulesBtn);
         navBar.add(exitBtn);
@@ -73,13 +75,16 @@ public class Play extends JFrame {
 
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.WEST;
-        JComponent player1Card = scoreCard("Player 1", "SCORE", PRIMARY, TEXT_DARK, TEXT, true, ACCENT);
+        
+        // Sử dụng logic.getP1Name() thay vì "Player 1"
+        JComponent player1Card = scoreCard(logic.getP1Name(), "SCORE", PRIMARY, TEXT_DARK, TEXT, true, ACCENT);
         mid.add(player1Card, gbc);
 
         gbc.gridx = 2;
         gbc.anchor = GridBagConstraints.EAST;
-        String player2Label = logic.isAiEnabled() ? "AI" : "Player 2";
-        JComponent player2Card = scoreCard(player2Label, "SCORE", PRIMARY, TEXT_DARK, TEXT, false, ACCENT);
+        
+        // Sử dụng logic.getP2Name() thay vì "Player 2"
+        JComponent player2Card = scoreCard(logic.getP2Name(), "SCORE", PRIMARY, TEXT_DARK, TEXT, false, ACCENT);
         mid.add(player2Card, gbc);
 
         gbc.gridx = 1;
@@ -88,10 +93,22 @@ public class Play extends JFrame {
         JPanel boardContainer = new JPanel(new BorderLayout());
         boardContainer.setOpaque(false);
 
-        statusLabel = new JLabel("Player " + logic.getPlayerX() + "'s turn", SwingConstants.CENTER);
+        // Panel chứa phần Text báo hiệu Lượt và Timer
+        JPanel boardHeader = new JPanel(new GridLayout(2, 1));
+        boardHeader.setOpaque(false);
+        boardHeader.setBorder(new EmptyBorder(0, 0, 10, 0));
+
+        statusLabel = new JLabel(">>> " + logic.getP1Name() + "'s Turn <<<", SwingConstants.CENTER);
         statusLabel.setForeground(ACCENT);
         statusLabel.setFont(new Font("SansSerif", Font.BOLD, 26));
-        boardContainer.add(statusLabel, BorderLayout.NORTH);
+        boardHeader.add(statusLabel);
+
+        timerLabel = new JLabel("Timer: Off", SwingConstants.CENTER);
+        timerLabel.setForeground(TEXT);
+        timerLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+        boardHeader.add(timerLabel);
+
+        boardContainer.add(boardHeader, BorderLayout.NORTH);
 
         int boardSize = logic.getBoardSize();
         JComponent boardComponent = createBoardPanel(boardSize, BOARD_BG, TILE_BG, TEXT, ACCENT);
@@ -99,7 +116,8 @@ public class Play extends JFrame {
 
         mid.add(boardContainer, gbc);
 
-        logic.initMenuGame(boardButtons, statusLabel, player1ScoreLabel, player2ScoreLabel);
+        // Khởi tạo Game cùng với Timer
+        logic.initMenuGame(boardButtons, statusLabel, player1ScoreLabel, player2ScoreLabel, timerLabel);
 
         JPanel bottom = new JPanel(new GridBagLayout());
         bottom.setOpaque(false);
@@ -114,6 +132,7 @@ public class Play extends JFrame {
         bottom.add(newGameBtn, bottomGbc);
 
         JComponent backBtn = actionButton("Back to Menu", PRIMARY, TEXT, ACCENT, () -> {
+            logic.stopTimer(); // Bắt buộc phải ngắt đồng hồ khi thoát màn hình
             dispose();
             MainMenu menu = new MainMenu();
             menu.setVisible(true);
@@ -123,7 +142,6 @@ public class Play extends JFrame {
 
         root.add(bottom, BorderLayout.SOUTH);
 
-        // Ép Swing vẽ lại toàn bộ giao diện ngay khi khởi tạo xong
         revalidate();
         repaint();
     }
@@ -135,7 +153,7 @@ public class Play extends JFrame {
         wrap.setLayout(new BorderLayout());
         wrap.add(btn, BorderLayout.CENTER);
 
-        btn.addActionListener(e -> action.run());
+        btn.addActionListener(e -> { Music.gameMusic.playMenuClick(); action.run(); });
         btn.addMouseListener(new HoverEffect(wrap));
         return wrap;
     }
@@ -147,7 +165,7 @@ public class Play extends JFrame {
         wrap.setLayout(new BorderLayout());
         wrap.add(btn, BorderLayout.CENTER);
 
-        btn.addActionListener(e -> action.run());
+        btn.addActionListener(e -> { Music.gameMusic.playMenuClick(); action.run(); });
         btn.addMouseListener(new HoverEffect(wrap));
         return wrap;
     }
@@ -164,10 +182,7 @@ public class Play extends JFrame {
         return b;
     }
 
-    private JComponent scoreCard(
-            String player, String scoreWord,
-            Color cardColor, Color titleColor, Color scoreColor, boolean isPlayer1, Color glow
-    ) {
+    private JComponent scoreCard(String player, String scoreWord, Color cardColor, Color titleColor, Color scoreColor, boolean isPlayer1, Color glow) {
         RoundedPanel card = new RoundedPanel(22);
         card.setBackground(cardColor);
         card.setPreferredSize(new Dimension(260, 320));
@@ -175,10 +190,7 @@ public class Play extends JFrame {
         card.setBorder(new EmptyBorder(22, 18, 22, 18));
 
         String symbol = isPlayer1 ? logic.getPlayerX() : logic.getPlayerO();
-        JLabel title = new JLabel(
-                "<html><div style='text-align:center;'><span style='text-align:center;'><span style='font-size:18px;'>[" + symbol + "]</span><br/>" + player + "<br/>" + scoreWord + "</span></div>",
-                SwingConstants.CENTER
-        );
+        JLabel title = new JLabel("<html><div style='text-align:center;'><span style='font-size:18px;'>[" + symbol + "]</span><br/>" + player + "<br/>" + scoreWord + "</div>", SwingConstants.CENTER);
         title.setForeground(titleColor);
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
 
@@ -186,11 +198,7 @@ public class Play extends JFrame {
         scoreLbl.setForeground(scoreColor);
         scoreLbl.setFont(new Font("SansSerif", Font.BOLD, 90));
 
-        if(isPlayer1) {
-            player1ScoreLabel = scoreLbl;
-        } else {
-            player2ScoreLabel = scoreLbl;
-        }
+        if(isPlayer1) player1ScoreLabel = scoreLbl; else player2ScoreLabel = scoreLbl;
 
         card.add(title, BorderLayout.NORTH);
         card.add(scoreLbl, BorderLayout.CENTER);
@@ -202,21 +210,18 @@ public class Play extends JFrame {
     }
 
     private JComponent createBoardPanel(int size, Color boardBg, Color tileBg, Color markColor, Color glow) {
-        // Thu nhỏ khoảng cách giữa các ô trên bảng 5x5 để nhìn gọn hơn
         int gap = (size == 3) ? 14 : 10;
         RoundedPanel boardWrap = new RoundedPanel(26);
         boardWrap.setBackground(boardBg);
         boardWrap.setBorder(new EmptyBorder(22, 22, 22, 22));
         boardWrap.setLayout(new GridLayout(size, size, gap, gap));
 
-        // Khóa cứng kích thước bảng để không bị bóp méo hình chữ nhật
         int boardPx = 440;
         Dimension fixedSize = new Dimension(boardPx, boardPx);
         boardWrap.setPreferredSize(fixedSize);
         boardWrap.setMinimumSize(fixedSize);
         boardWrap.setMaximumSize(fixedSize);
 
-        // Chỉnh cỡ chữ: 3x3 chữ to, 5x5 chữ nhỏ
         int fontSize = (size == 3) ? 68 : 36;
         Font markFont = new Font("SansSerif", Font.BOLD, fontSize);
         boardButtons = new JButton[size * size];
@@ -236,14 +241,10 @@ public class Play extends JFrame {
             cell.addActionListener(e -> logic.handleBoardClick(boardButtons[index]));
 
             RoundedButton tile = new RoundedButton(16, tileBg, glow);
-            if (size > 3) {
-                tile.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 80), 1));
-            }
+            if (size > 3) tile.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 80), 1));
             tile.setLayout(new BorderLayout());
             tile.add(cell, BorderLayout.CENTER);
-
             cell.addMouseListener(new HoverEffect(tile));
-
             boardWrap.add(tile);
         }
 
@@ -253,104 +254,52 @@ public class Play extends JFrame {
         return center;
     }
 
+    // Các class UI được giữ nguyên (GradientPanel, RoundedPanel, GlowPanel, RoundedButton, HoverEffect)...
     static class GradientPanel extends JPanel {
-        private final Color top;
-        private final Color bottom;
-
-        GradientPanel(Color top, Color bottom) {
-            this.top = top;
-            this.bottom = bottom;
-            setOpaque(false);
-        }
-
+        private final Color top; private final Color bottom;
+        GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setPaint(new GradientPaint(0, 0, top, 0, getHeight(), bottom));
-            g2.fillRect(0, 0, getWidth(), getHeight());
-            g2.dispose();
-            super.paintComponent(g);
+            g2.fillRect(0, 0, getWidth(), getHeight()); g2.dispose(); super.paintComponent(g);
         }
     }
-
     static class RoundedPanel extends JPanel {
-        private final int arc;
-        RoundedPanel(int arc) { this.arc = arc; setOpaque(false); }
-
+        private final int arc; RoundedPanel(int arc) { this.arc = arc; setOpaque(false); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getBackground());
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
-            g2.dispose();
-            super.paintComponent(g);
+            g2.setColor(getBackground()); g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+            g2.dispose(); super.paintComponent(g);
         }
     }
-
     static class GlowPanel extends JPanel {
-        private final int arc;
-        private final Color glow;
-
-        GlowPanel(int arc, Color glow) {
-            this.arc = arc;
-            this.glow = glow;
-            setOpaque(false);
-        }
-
+        private final int arc; private final Color glow;
+        GlowPanel(int arc, Color glow) { this.arc = arc; this.glow = glow; setOpaque(false); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setColor(new Color(glow.getRed(), glow.getGreen(), glow.getBlue(), 60));
             g2.fillRoundRect(2, 4, getWidth() - 4, getHeight() - 4, arc, arc);
-            g2.dispose();
-            super.paintComponent(g);
+            g2.dispose(); super.paintComponent(g);
         }
     }
-
     static class RoundedButton extends JPanel {
-        private final int arc;
-        private final Color base;
-        private final Color glow;
-        private boolean hover;
-
-        RoundedButton(int arc, Color base, Color glow) {
-            this.arc = arc;
-            this.base = base;
-            this.glow = glow;
-            setOpaque(false);
-        }
-
-        void setHover(boolean hover) {
-            this.hover = hover;
-            repaint();
-        }
-
+        private final int arc; private final Color base; private final Color glow; private boolean hover;
+        RoundedButton(int arc, Color base, Color glow) { this.arc = arc; this.base = base; this.glow = glow; setOpaque(false); }
+        void setHover(boolean hover) { this.hover = hover; repaint(); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            g2.setColor(new Color(0, 0, 0, 90));
-            g2.fillRoundRect(4, 5, getWidth() - 8, getHeight() - 8, arc, arc);
-
-            Color fill = hover ? glow : base;
-            g2.setColor(fill);
-            g2.fillRoundRect(0, 0, getWidth() - 4, getHeight() - 4, arc, arc);
-
-            g2.setColor(new Color(255, 255, 255, hover ? 70 : 40));
-            g2.drawRoundRect(1, 1, getWidth() - 6, getHeight() - 6, arc, arc);
-
-            g2.dispose();
-            super.paintComponent(g);
+            g2.setColor(new Color(0, 0, 0, 90)); g2.fillRoundRect(4, 5, getWidth() - 8, getHeight() - 8, arc, arc);
+            Color fill = hover ? glow : base; g2.setColor(fill); g2.fillRoundRect(0, 0, getWidth() - 4, getHeight() - 4, arc, arc);
+            g2.setColor(new Color(255, 255, 255, hover ? 70 : 40)); g2.drawRoundRect(1, 1, getWidth() - 6, getHeight() - 6, arc, arc);
+            g2.dispose(); super.paintComponent(g);
         }
     }
-
     static class HoverEffect extends MouseAdapter {
-        private final RoundedButton target;
-
-        HoverEffect(RoundedButton target) {
-            this.target = target;
-        }
-
+        private final RoundedButton target; HoverEffect(RoundedButton target) { this.target = target; }
         @Override public void mouseEntered(MouseEvent e) { target.setHover(true); }
         @Override public void mouseExited(MouseEvent e) { target.setHover(false); }
     }
