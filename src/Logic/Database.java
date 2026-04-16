@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class Database {
     // This points to the tictactoe_db database on your XAMPP server
-    private static final String URL = "jdbc:mysql://localhost:3306/tictactoe_db";
+    private static final String URL = "jdbc:mysql://localhost:3306/tic_tac_toe_db";
     private static final String USER = "root";
     private static final String PASS = ""; 
 

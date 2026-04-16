@@ -142,7 +142,7 @@ public class Signup extends JFrame {
             }
             
             // --- CẬP NHẬT DATABASE INSERT ---
-            String sql = "INSERT INTO accounts (email, username, phone, password) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO accounts (email, username, phone_number, password) VALUES (?, ?, ?, ?)";
 
             try (Connection conn = Database.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {

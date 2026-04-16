@@ -9,5 +9,8 @@
             "approve": true,
             "matchCommandLine": true
         }
-    }
+    },
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar"
+    ]
 }
