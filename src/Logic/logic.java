@@ -33,10 +33,9 @@ public class logic {
     private static AiDifficulty aiDifficulty = AiDifficulty.NORMAL;
     private static String aiSymbol = "🤖";
 
-    // --- BIẾN MỚI CHO TÊN VÀ TIMER ---
     private static String p1Name = "Player 1";
     private static String p2Name = "Player 2";
-    private static int turnTimeLimit = 0; // Thời gian tối đa mỗi lượt (giây)
+    private static int turnTimeLimit = 0; 
     private static int timeLeft = 0;
     private static Timer turnTimer;
 
@@ -50,7 +49,6 @@ public class logic {
 
     public static void setTurnTimeLimit(int limit) { turnTimeLimit = limit; }
     public static int getTurnTimeLimit() { return turnTimeLimit; }
-    // ---------------------------------
 
     public static int getBoardSize() { return boardSize; }
 
@@ -123,10 +121,9 @@ public class logic {
         player2ScoreLabel = p2Score;
         
         updateStatusLabel();
-        startTimer(); // Bắt đầu đếm ngược
+        startTimer(); 
     }
 
-    // --- HỆ THỐNG TIMER ---
     public static void stopTimer() {
         if (turnTimer != null) turnTimer.stop();
     }
@@ -173,6 +170,13 @@ public class logic {
             statusLabel.setText("Time Out! " + winnerName + " wins!");
         }
         
+        // --- PHÁT NHẠC THẮNG/THUA KHI HẾT GIỜ ---
+        if (isAiEnabled() && winnerName.equals(getAiSymbol())) {
+            Music.gameMusic.playLoseSound(); // Máy thắng vì bạn hết giờ (Defeat)
+        } else {
+            Music.gameMusic.playWinSound(); // Bạn thắng vì đối thủ hết giờ (Victory)
+        }
+
         if (currentPlayer.equals(playerX)) {
             player2Score++;
             if (player2ScoreLabel != null) player2ScoreLabel.setText(String.valueOf(player2Score));
@@ -183,7 +187,6 @@ public class logic {
         
         JOptionPane.showMessageDialog(null, "Hết giờ! " + winnerName + " thắng!", "Time Out", JOptionPane.WARNING_MESSAGE);
     }
-    // ----------------------
 
     private static void updateStatusLabel() {
         if (statusLabel != null) {
@@ -206,6 +209,10 @@ public class logic {
             end = true;
             stopTimer();
             if (statusLabel != null) statusLabel.setText("Draw!");
+            
+            // --- PHÁT NHẠC HÒA ---
+            Music.gameMusic.playDrawSound();
+            
             JOptionPane.showMessageDialog(null, "Draw!", "Draw", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -220,6 +227,14 @@ public class logic {
             updateScoreForCurrentPlayer();
             String winnerName = currentPlayer.equals(playerX) ? getP1Name() : getP2Name();
             if (statusLabel != null) statusLabel.setText("Winner: " + winnerName);
+            
+            // --- PHÁT NHẠC THẮNG/THUA Ở ĐÂY ---
+            if (isAiEnabled() && currentPlayer.equals(aiSymbol)) {
+                Music.gameMusic.playLoseSound(); // Máy đánh nước quyết định -> Bạn thua (Defeat)
+            } else {
+                Music.gameMusic.playWinSound(); // Bạn đánh nước quyết định -> Bạn thắng (Victory)
+            }
+            
             JOptionPane.showMessageDialog(null, winnerName + " thắng!");
             return;
         }
@@ -228,13 +243,17 @@ public class logic {
             end = true;
             stopTimer();
             if (statusLabel != null) statusLabel.setText("Draw!");
+            
+            // --- PHÁT NHẠC HÒA Ở ĐÂY ---
+            Music.gameMusic.playDrawSound();
+            
             JOptionPane.showMessageDialog(null, "Draw!", "Draw", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         currentPlayer = currentPlayer.equals(playerX) ? playerO : playerX;
         updateStatusLabel();
-        startTimer(); // Làm mới thời gian cho lượt mới
+        startTimer(); 
     }
 
     private static void updateScoreForCurrentPlayer() {
@@ -325,16 +344,17 @@ public class logic {
         currentPlayer = playerX;
         end = false;
         updateStatusLabel();
-        startTimer(); // Khởi động lại đếm ngược
+        startTimer(); 
     }
 
-    // -- Các hàm xử lý click phụ không đổi --
     public static void handleSettingsClick() {
         JOptionPane.showMessageDialog(null, "Settings\nGame difficulty and preferences can be configured here.", "Settings", JOptionPane.INFORMATION_MESSAGE);
     }
-    public static void handleRulesClick() {
-        JOptionPane.showMessageDialog(null, "1. Players take turns placing X or O\n2. First player to get 3 in a row wins\n3. Match timer applies to your thinking time!", "Rules", JOptionPane.INFORMATION_MESSAGE);
+    
+    public static void handleHistoryClick() {
+        JOptionPane.showMessageDialog(null, "Match history will be loaded from the database soon!", "History", JOptionPane.INFORMATION_MESSAGE);
     }
+    
     public static void handleExitClick() {
         int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "Exit Game", JOptionPane.YES_NO_OPTION);
         if(response == JOptionPane.YES_OPTION) System.exit(0);

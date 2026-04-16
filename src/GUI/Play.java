@@ -53,12 +53,15 @@ public class Play extends JFrame {
 
         JComponent musicBtn = navButton("🎵 Music", TEXT, ACCENT, () -> Music.gameMusic.toggleBackgroundMusic());
         JComponent settingBtn = navButton("⚙ Settings", TEXT, ACCENT, () -> logic.handleSettingsClick());
-        JComponent rulesBtn = navButton("ℹ Rules", TEXT, ACCENT, () -> logic.handleRulesClick());
+        
+        // ĐÃ THAY NÚT RULES THÀNH NÚT HISTORY
+        JComponent historyBtn = navButton("🕒 History", TEXT, ACCENT, () -> logic.handleHistoryClick());
+        
         JComponent exitBtn = navButton("✖ Exit", TEXT, ACCENT, () -> { logic.stopTimer(); logic.handleExitClick(); });
 
         navBar.add(musicBtn);
         navBar.add(settingBtn);
-        navBar.add(rulesBtn);
+        navBar.add(historyBtn); // Đổi ở đây
         navBar.add(exitBtn);
 
         headerPanel.add(navBar, BorderLayout.EAST);
@@ -75,15 +78,11 @@ public class Play extends JFrame {
 
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.WEST;
-        
-        // Sử dụng logic.getP1Name() thay vì "Player 1"
         JComponent player1Card = scoreCard(logic.getP1Name(), "SCORE", PRIMARY, TEXT_DARK, TEXT, true, ACCENT);
         mid.add(player1Card, gbc);
 
         gbc.gridx = 2;
         gbc.anchor = GridBagConstraints.EAST;
-        
-        // Sử dụng logic.getP2Name() thay vì "Player 2"
         JComponent player2Card = scoreCard(logic.getP2Name(), "SCORE", PRIMARY, TEXT_DARK, TEXT, false, ACCENT);
         mid.add(player2Card, gbc);
 
@@ -93,7 +92,6 @@ public class Play extends JFrame {
         JPanel boardContainer = new JPanel(new BorderLayout());
         boardContainer.setOpaque(false);
 
-        // Panel chứa phần Text báo hiệu Lượt và Timer
         JPanel boardHeader = new JPanel(new GridLayout(2, 1));
         boardHeader.setOpaque(false);
         boardHeader.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -116,7 +114,6 @@ public class Play extends JFrame {
 
         mid.add(boardContainer, gbc);
 
-        // Khởi tạo Game cùng với Timer
         logic.initMenuGame(boardButtons, statusLabel, player1ScoreLabel, player2ScoreLabel, timerLabel);
 
         JPanel bottom = new JPanel(new GridBagLayout());
@@ -132,7 +129,7 @@ public class Play extends JFrame {
         bottom.add(newGameBtn, bottomGbc);
 
         JComponent backBtn = actionButton("Back to Menu", PRIMARY, TEXT, ACCENT, () -> {
-            logic.stopTimer(); // Bắt buộc phải ngắt đồng hồ khi thoát màn hình
+            logic.stopTimer();
             dispose();
             MainMenu menu = new MainMenu();
             menu.setVisible(true);
@@ -254,7 +251,6 @@ public class Play extends JFrame {
         return center;
     }
 
-    // Các class UI được giữ nguyên (GradientPanel, RoundedPanel, GlowPanel, RoundedButton, HoverEffect)...
     static class GradientPanel extends JPanel {
         private final Color top; private final Color bottom;
         GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }

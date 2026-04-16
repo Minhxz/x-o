@@ -6,17 +6,17 @@ import javax.sound.sampled.*;
 public class gameMusic {
 
     private static Clip bgmClip; 
-    private static boolean isMuted = false; // Thêm biến lưu trạng thái tắt/bật
+    private static boolean isMuted = false;
 
     // Hàm bật/tắt nhạc
     public static void toggleBackgroundMusic() {
-        isMuted = !isMuted; // Đảo ngược trạng thái
+        isMuted = !isMuted; 
         
         if (bgmClip != null) {
             if (isMuted) {
-                bgmClip.stop(); // Dừng nhạc
+                bgmClip.stop(); 
             } else {
-                bgmClip.start(); // Phát lại nhạc
+                bgmClip.start(); 
                 bgmClip.loop(Clip.LOOP_CONTINUOUSLY);
             }
         } else if (!isMuted) {
@@ -56,7 +56,7 @@ public class gameMusic {
 
     // 3. Nhạc nền
     public static void playBackgroundMusic() {
-        if (isMuted) return; // Không tự động phát nếu người dùng đang tắt nhạc
+        if (isMuted) return; 
 
         try {
             if (bgmClip != null && bgmClip.isRunning()) {
@@ -76,5 +76,50 @@ public class gameMusic {
         } catch (Exception e) {
             System.err.println("Lỗi phát nhạc nền: " + e.getMessage());
         }
+    }
+
+    // 4. Nhạc Thắng (Victory)
+    public static void playWinSound() {
+        if (isMuted) return;
+        try {
+            // Đã cập nhật thành victory.wav
+            File soundPath = new File("resources/music/victory.wav");
+            if (soundPath.exists()) {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.start();
+            }
+        } catch (Exception e) { System.err.println("Lỗi nhạc Win: " + e.getMessage()); }
+    }
+
+    // 5. Nhạc Thua (Defeat)
+    public static void playLoseSound() {
+        if (isMuted) return;
+        try {
+            // Đã cập nhật thành defeat.wav
+            File soundPath = new File("resources/music/defeat.wav");
+            if (soundPath.exists()) {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.start();
+            }
+        } catch (Exception e) { System.err.println("Lỗi nhạc Lose: " + e.getMessage()); }
+    }
+
+    // 6. Nhạc Hòa (Draw)
+    public static void playDrawSound() {
+        if (isMuted) return;
+        try {
+            // Sử dụng draw.wav
+            File soundPath = new File("resources/music/draw.wav");
+            if (soundPath.exists()) {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.start();
+            }
+        } catch (Exception e) { System.err.println("Lỗi nhạc Draw: " + e.getMessage()); }
     }
 }
