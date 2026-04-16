@@ -2,6 +2,7 @@ package GUI;
 
 import Fancy.Theme;
 import Logic.logic;
+import Logic.MenuActions;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -31,6 +32,7 @@ public class Play extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1280, 720);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setLocationRelativeTo(null);
         setTitle("Tic Tac Toe - X O Game");
 
@@ -48,20 +50,16 @@ public class Play extends JFrame {
         titleLabel.setForeground(ACCENT);
         headerPanel.add(titleLabel, BorderLayout.WEST);
 
-        JPanel navBar = new JPanel(new GridLayout(1, 4, 12, 0));
+        // Updated grid layout to 3 columns since the setting button is removed
+        JPanel navBar = new JPanel(new GridLayout(1, 3, 12, 0));
         navBar.setOpaque(false);
 
-        JComponent musicBtn = navButton("🎵 Music", TEXT, ACCENT, () -> Music.gameMusic.playBackgroundMusic());
-        JComponent settingBtn = navButton("⚙ Settings", TEXT, ACCENT, () -> logic.handleSettingsClick());
-        
-        // ĐÃ THAY NÚT RULES THÀNH NÚT HISTORY
+        JComponent musicBtn = navButton("🎵 Music", TEXT, ACCENT, () -> MenuActions.showMusicDialog(this));
         JComponent historyBtn = navButton("🕒 History", TEXT, ACCENT, () -> logic.handleHistoryClick());
-        
         JComponent exitBtn = navButton("✖ Exit", TEXT, ACCENT, () -> { logic.stopTimer(); logic.handleExitClick(); });
 
         navBar.add(musicBtn);
-        navBar.add(settingBtn);
-        navBar.add(historyBtn); // Đổi ở đây
+        navBar.add(historyBtn);
         navBar.add(exitBtn);
 
         headerPanel.add(navBar, BorderLayout.EAST);

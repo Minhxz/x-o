@@ -41,6 +41,9 @@ public class logic {
     private static int turnTimeLimit = 0; 
     private static int timeLeft = 0;
     private static Timer turnTimer;
+    
+    // Tracks the exact start time of the match
+    private static long matchStartTime = 0;
 
     // --- BIẾN LƯU EMAIL TÀI KHOẢN ĐANG CHƠI ---
     private static String currentAccountEmail = "";
@@ -48,21 +51,29 @@ public class logic {
     public static void setCurrentAccountEmail(String email) { currentAccountEmail = email; }
     public static String getCurrentAccountEmail() { return currentAccountEmail; }
 
+    // Tính toán thời gian đã trôi qua
+    private static String getElapsedTimeString() {
+        long elapsedSec = (System.currentTimeMillis() - matchStartTime) / 1000;
+        long mm = elapsedSec / 60;
+        long ss = elapsedSec % 60;
+        return String.format("%02d:%02d", mm, ss);
+    }
+
     // --- HÀM LƯU LỊCH SỬ VÀO DATABASE ---
-    public static void saveGameHistory(String p1, String p2, String winner) {
-        // Nếu không có ai đăng nhập (biến rỗng) thì không lưu để tránh lỗi
+    public static void saveGameHistory(String p1, String p2, String winner, String matchTime) {
         if (currentAccountEmail == null || currentAccountEmail.isEmpty()) {
             System.out.println("Cảnh báo: Chưa đăng nhập, ván đấu này sẽ không được lưu vào MySQL!");
             return; 
         }
 
-        String sql = "INSERT INTO history (account_email, player1_name, player2_name, winner) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO history (account_email, player1_name, player2_name, winner, match_time) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = Database.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, currentAccountEmail);
             pstmt.setString(2, p1);
             pstmt.setString(3, p2);
             pstmt.setString(4, winner);
+            pstmt.setString(5, matchTime); // Added match_time parameter
             pstmt.executeUpdate();
             System.out.println("Đã lưu lịch sử vào MySQL thành công!");
         } catch (SQLException e) {
@@ -151,6 +162,8 @@ public class logic {
         player1ScoreLabel = p1Score;
         player2ScoreLabel = p2Score;
         
+        matchStartTime = System.currentTimeMillis(); // Start match timer
+        
         updateStatusLabel();
         startTimer(); 
     }
@@ -201,14 +214,12 @@ public class logic {
             statusLabel.setText("Time Out! " + winnerName + " wins!");
         }
         
-        // --- LƯU LỊCH SỬ KHI HẾT GIỜ ---
-        saveGameHistory(getP1Name(), getP2Name(), winnerName + " (Time Out)");
+        saveGameHistory(getP1Name(), getP2Name(), winnerName + " (Time Out)", getElapsedTimeString());
 
-        // --- PHÁT NHẠC THẮNG/THUA KHI HẾT GIỜ ---
         if (isAiEnabled() && winnerName.equals(getAiSymbol())) {
-            Music.gameMusic.playLoseSound(); // Máy thắng vì bạn hết giờ (Defeat)
+            Music.gameMusic.playLoseSound(); 
         } else {
-            Music.gameMusic.playWinSound(); // Bạn thắng vì đối thủ hết giờ (Victory)
+            Music.gameMusic.playWinSound(); 
         }
 
         if (currentPlayer.equals(playerX)) {
@@ -244,10 +255,7 @@ public class logic {
             stopTimer();
             if (statusLabel != null) statusLabel.setText("Draw!");
             
-            // --- LƯU LỊCH SỬ HÒA (KHI BẤM NÚT CUỐI CÙNG LÀM ĐẦY BẢNG) ---
-            saveGameHistory(getP1Name(), getP2Name(), "Draw");
-
-            // --- PHÁT NHẠC HÒA ---
+            saveGameHistory(getP1Name(), getP2Name(), "Draw", getElapsedTimeString());
             Music.gameMusic.playDrawSound();
             
             JOptionPane.showMessageDialog(null, "Draw!", "Draw", JOptionPane.INFORMATION_MESSAGE);
@@ -265,14 +273,12 @@ public class logic {
             String winnerName = currentPlayer.equals(playerX) ? getP1Name() : getP2Name();
             if (statusLabel != null) statusLabel.setText("Winner: " + winnerName);
             
-            // --- LƯU LỊCH SỬ KHI CÓ NGƯỜI CHIẾN THẮNG ---
-            saveGameHistory(getP1Name(), getP2Name(), winnerName);
+            saveGameHistory(getP1Name(), getP2Name(), winnerName, getElapsedTimeString());
 
-            // --- PHÁT NHẠC THẮNG/THUA Ở ĐÂY ---
             if (isAiEnabled() && currentPlayer.equals(aiSymbol)) {
-                Music.gameMusic.playLoseSound(); // Máy đánh nước quyết định -> Bạn thua (Defeat)
+                Music.gameMusic.playLoseSound(); 
             } else {
-                Music.gameMusic.playWinSound(); // Bạn đánh nước quyết định -> Bạn thắng (Victory)
+                Music.gameMusic.playWinSound(); 
             }
             
             JOptionPane.showMessageDialog(null, winnerName + " thắng!");
@@ -284,10 +290,7 @@ public class logic {
             stopTimer();
             if (statusLabel != null) statusLabel.setText("Draw!");
             
-            // --- LƯU LỊCH SỬ KHI HÒA KẾT THÚC ---
-            saveGameHistory(getP1Name(), getP2Name(), "Draw");
-
-            // --- PHÁT NHẠC HÒA Ở ĐÂY ---
+            saveGameHistory(getP1Name(), getP2Name(), "Draw", getElapsedTimeString());
             Music.gameMusic.playDrawSound();
             
             JOptionPane.showMessageDialog(null, "Draw!", "Draw", JOptionPane.INFORMATION_MESSAGE);
@@ -386,12 +389,10 @@ public class logic {
 
         currentPlayer = playerX;
         end = false;
+        matchStartTime = System.currentTimeMillis(); // Reset match timer for new game
+        
         updateStatusLabel();
         startTimer(); 
-    }
-
-    public static void handleSettingsClick() {
-        JOptionPane.showMessageDialog(null, "Settings\nGame difficulty and preferences can be configured here.", "Settings", JOptionPane.INFORMATION_MESSAGE);
     }
     
     public static void handleHistoryClick() {

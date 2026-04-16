@@ -1,9 +1,8 @@
 {
     "java.project.sourcePaths": [
-        "x-o/src",
-        "x-o/out",
         "src"
     ],
+    "java.project.outputPath": "out",
     "chat.tools.terminal.autoApprove": {
         "/^powershell -NoProfile -Command \"Set-Location 'c:\\\\Users\\\\Admin\\\\Desktop\\\\btl java\\\\x-o'; Get-Item 'resources\\\\music\\\\background\\.wav' \\| Format-List FullName,Exists\"$/": {
             "approve": true,

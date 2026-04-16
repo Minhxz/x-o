@@ -5,6 +5,8 @@ import Fancy.Characters;
 import Fancy.Theme;
 import GUI.MainMenu;
 import GUI.Play;
+import GUI.dangnhap; // <-- Imported dangnhap for Logout redirection
+import Music.gameMusic;
 
 import javax.swing.*;
 import java.awt.*;
@@ -129,16 +131,65 @@ public class MenuActions {
         themedMessageDialog(parent, "Characters set to " + player1 + " and " + player2, "Character");
     }
 
-    // --- NEW HISTORY METHOD ---
+    public static void showMusicDialog(JFrame parent) {
+        String[] options = {"Toggle BGM", "Toggle SFX", "Cancel"};
+        withTheme(logic.getTheme(), () -> {
+            int choice = JOptionPane.showOptionDialog(
+                    parent,
+                    "Choose sound setting to toggle:",
+                    "Music & Sound Settings",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+            if (choice == 0) gameMusic.toggleBGM();
+            else if (choice == 1) gameMusic.toggleSFX();
+            return null;
+        });
+    }
+
+    // --- NEW PROFILE / LOGOUT METHOD ---
+    public static void showProfileDialog(JFrame parent) {
+        String currentEmail = logic.getCurrentAccountEmail();
+        if (currentEmail == null || currentEmail.isEmpty()) {
+            currentEmail = "Not logged in (Guest)";
+        }
+
+        String[] options = {"Logout", "Close"};
+        String message = "Logged in as: " + currentEmail + "\n\nDo you want to log out?";
+        
+        withTheme(logic.getTheme(), () -> {
+            int choice = JOptionPane.showOptionDialog(
+                    parent,
+                    message,
+                    "User Profile",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[1]
+            );
+
+            if (choice == 0) { // If user clicked "Logout"
+                logic.setCurrentAccountEmail(""); // Clear the session
+                if (parent != null) {
+                    parent.dispose(); // Close current Main Menu
+                }
+                new dangnhap(); // Open Login Form
+            }
+            return null;
+        });
+    }
+
     public static void showHistory(JFrame parent) {
-        // NOTE: Change 'history' to your exact table name if it differs (e.g., 'matches' or 'game_history')
         String query = "SELECT * FROM history"; 
 
         try (Connection conn = Database.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
-            // 1. Extract column names from the table metadata
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
             Vector<String> columnNames = new Vector<>();
@@ -146,7 +197,6 @@ public class MenuActions {
                 columnNames.add(metaData.getColumnName(column));
             }
 
-            // 2. Extract the row data
             Vector<Vector<Object>> data = new Vector<>();
             while (rs.next()) {
                 Vector<Object> row = new Vector<>();
@@ -156,18 +206,16 @@ public class MenuActions {
                 data.add(row);
             }
 
-            // 3. Create a JTable to view the data
             JTable table = new JTable(data, columnNames);
             table.setFillsViewportHeight(true);
             table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
             table.setFont(new Font("SansSerif", Font.PLAIN, 14));
             table.setRowHeight(25);
-            table.setEnabled(false); // Make table read-only
+            table.setEnabled(false); 
 
             JScrollPane scrollPane = new JScrollPane(table);
             scrollPane.setPreferredSize(new Dimension(600, 300));
 
-            // 4. Display the table inside your custom themed dialog
             withTheme(logic.getTheme(), () -> {
                 JOptionPane.showMessageDialog(parent, scrollPane, "Match History", JOptionPane.PLAIN_MESSAGE);
                 return null;
@@ -179,7 +227,6 @@ public class MenuActions {
         }
     }
 
-    // --- Dialog Helper Methods ---
     private static String themedInputDialog(JFrame parent, String message, String title, String[] options, String initial) {
         return withTheme(logic.getTheme(), () -> {
             JOptionPane pane = new JOptionPane(message, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
@@ -196,12 +243,11 @@ public class MenuActions {
         });
     }
 
-    // Dùng cho nhập Text tự do (Không có dropdown)
     private static String themedTextInputDialog(JFrame parent, String message, String title, String initial) {
         return withTheme(logic.getTheme(), () -> {
             JOptionPane pane = new JOptionPane(message, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
             pane.setWantsInput(true);
-            pane.setSelectionValues(null); // Bắt buộc là Text Field
+            pane.setSelectionValues(null); 
             pane.setInitialSelectionValue(initial);
             JDialog dialog = pane.createDialog(parent, title);
             dialog.setAlwaysOnTop(true);

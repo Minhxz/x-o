@@ -25,6 +25,7 @@ public class MainMenu extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1280, 720);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setLocationRelativeTo(null);
         setTitle("Tic Tac Toe - Main Menu");
 
@@ -33,7 +34,8 @@ public class MainMenu extends JFrame {
         root.setBorder(new EmptyBorder(10, 30, 20, 30));
         setContentPane(root);
 
-        JPanel headerPanel = new JPanel(new GridBagLayout());
+        // Changed Header to BorderLayout to support Top-Right positioning
+        JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
         headerPanel.setBorder(new EmptyBorder(10, 10, 5, 10));
 
@@ -49,7 +51,15 @@ public class MainMenu extends JFrame {
         titleBox.add(titleLabel);
         titleBox.add(Box.createVerticalStrut(6));
         titleBox.add(subTitle);
-        headerPanel.add(titleBox);
+        headerPanel.add(titleBox, BorderLayout.WEST); // Title on the Left
+
+        // Profile / Logout Button on the Right
+        JPanel navBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        navBar.setOpaque(false);
+        JComponent profileBtn = navButton("👤 Profile", TEXT, ACCENT, () -> MenuActions.showProfileDialog(this));
+        navBar.add(profileBtn);
+        headerPanel.add(navBar, BorderLayout.EAST);
+
         root.add(headerPanel, BorderLayout.NORTH);
 
         JPanel center = new JPanel(new GridBagLayout());
@@ -60,8 +70,7 @@ public class MainMenu extends JFrame {
         menuCard.setBackground(new Color(0, 0, 0, 130));
         menuCard.setBorder(new EmptyBorder(20, 60, 20, 60));
         
-        // Nâng cấp lên 8 hàng để chứa BGM và SFX riêng biệt
-        menuCard.setLayout(new GridLayout(8, 1, 0, 10));
+        menuCard.setLayout(new GridLayout(7, 1, 0, 10));
 
         JComponent playBtn = gameButton("▶ Play", PRIMARY, TEXT, ACCENT, () -> MenuActions.openPlay(this));
         JComponent nameBtn = gameButton("✏ Names", PRIMARY, TEXT, ACCENT, () -> MenuActions.showNameDialog(this));
@@ -69,10 +78,7 @@ public class MainMenu extends JFrame {
         JComponent timerBtn = gameButton("⏳ Timer", PRIMARY, TEXT, ACCENT, () -> MenuActions.showTimerDialog(this));
         JComponent colorBtn = gameButton("🎨 Color", PRIMARY, TEXT, ACCENT, () -> MenuActions.showThemeDialog(this));
         JComponent characterBtn = gameButton("★ Character", PRIMARY, TEXT, ACCENT, () -> MenuActions.showCharacterDialog(this));
-        
-        // 2 nút âm thanh mới
-        JComponent bgmBtn = gameButton("🎵 BGM: ON/OFF", PRIMARY, TEXT, ACCENT, () -> Music.gameMusic.toggleBGM());
-        JComponent sfxBtn = gameButton("🔊 SFX: ON/OFF", PRIMARY, TEXT, ACCENT, () -> Music.gameMusic.toggleSFX());
+        JComponent musicBtn = gameButton("🎵 Music & Sound", PRIMARY, TEXT, ACCENT, () -> MenuActions.showMusicDialog(this));
 
         menuCard.add(playBtn);
         menuCard.add(nameBtn);
@@ -80,8 +86,7 @@ public class MainMenu extends JFrame {
         menuCard.add(timerBtn);
         menuCard.add(colorBtn);
         menuCard.add(characterBtn);
-        menuCard.add(bgmBtn); // Nút Nhạc nền
-        menuCard.add(sfxBtn); // Nút Tiếng động
+        menuCard.add(musicBtn); 
 
         center.add(menuCard);
         root.add(center, BorderLayout.CENTER);
@@ -93,6 +98,29 @@ public class MainMenu extends JFrame {
         hint.setFont(new Font("SansSerif", Font.PLAIN, 16));
         footer.add(hint);
         root.add(footer, BorderLayout.SOUTH);
+    }
+
+    private static JComponent navButton(String text, Color fg, Color glow, Runnable action) {
+        JButton btn = new JButton(text);
+        btn.setForeground(fg);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        RoundedButton wrap = new RoundedButton(16, new Color(0, 0, 0, 140), glow);
+        wrap.setBorder(new EmptyBorder(10, 16, 10, 16));
+        wrap.setLayout(new BorderLayout());
+        wrap.add(btn, BorderLayout.CENTER);
+
+        btn.addActionListener(e -> { Music.gameMusic.playMenuClick(); action.run(); });
+        btn.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { wrap.setHover(true); }
+            @Override public void mouseExited(MouseEvent e) { wrap.setHover(false); }
+        });
+        return wrap;
     }
 
     private static JComponent gameButton(String text, Color bg, Color fg, Color glow, Runnable action) {
@@ -124,7 +152,6 @@ public class MainMenu extends JFrame {
         return wrap;
     }
 
-    // Các class vẽ giao diện (Giữ nguyên)
     static class GradientPanel extends JPanel {
         private final Color top; private final Color bottom;
         GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }
