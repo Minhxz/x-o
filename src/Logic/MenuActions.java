@@ -150,7 +150,7 @@ public class MenuActions {
         });
     }
 
-    // --- NEW PROFILE / LOGOUT METHOD ---
+    // --- PROFILE / LOGOUT METHOD ---
     public static void showProfileDialog(JFrame parent) {
         String currentEmail = logic.getCurrentAccountEmail();
         if (currentEmail == null || currentEmail.isEmpty()) {
@@ -213,8 +213,26 @@ public class MenuActions {
             table.setRowHeight(25);
             table.setEnabled(false); 
 
+            // --- Điều chỉnh độ rộng cột linh hoạt ---
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
+                String colName = table.getColumnName(i).toLowerCase();
+                
+                if (colName.equals("id")) {
+                    // Thu hẹp cột ID
+                    table.getColumnModel().getColumn(i).setPreferredWidth(50);
+                    table.getColumnModel().getColumn(i).setMaxWidth(80); 
+                } else if (colName.contains("time") || colName.contains("date")) {
+                    // Mở rộng cột thời gian (match_time/match_date)
+                    table.getColumnModel().getColumn(i).setPreferredWidth(250);
+                } else {
+                    // Kích thước mặc định cho các cột còn lại (email, tên, winner)
+                    table.getColumnModel().getColumn(i).setPreferredWidth(150);
+                }
+            }
+
             JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new Dimension(600, 300));
+            scrollPane.setPreferredSize(new Dimension(900, 450)); // Tăng kích thước cửa sổ lên 900x450
 
             withTheme(logic.getTheme(), () -> {
                 JOptionPane.showMessageDialog(parent, scrollPane, "Match History", JOptionPane.PLAIN_MESSAGE);
