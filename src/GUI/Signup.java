@@ -3,7 +3,7 @@ package GUI;
 import Fancy.Theme;
 import Logic.Database;
 import Logic.logic;
-import Music.gameMusic; // Added Database import
+import Music.gameMusic; 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -14,6 +14,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+// Lớp màn hình Đăng ký
 public class Signup extends JFrame {
 
     public Signup() {
@@ -35,6 +36,7 @@ public class Signup extends JFrame {
         root.setBorder(new EmptyBorder(40, 30, 30, 30));
         setContentPane(root);
 
+        // Header: CREATE ACCOUNT
         JPanel header = new JPanel();
         header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
@@ -72,6 +74,7 @@ public class Signup extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
 
+        // Bổ sung thêm trường thông tin Số Điện thoại so với trang đăng nhập
         JLabel userLabel = label("Tên người dùng:", TEXT);
         JTextField userField = field("Nhập tên đăng ký...");
         JLabel emailLabel = label("Email:", TEXT);
@@ -116,6 +119,7 @@ public class Signup extends JFrame {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         actions.setOpaque(false);
 
+        // Nút ĐĂNG KÝ
         JComponent createBtn = actionButton("Create Account", PRIMARY, TEXT, ACCENT, () -> {
             gameMusic.playMenuClick(); 
             
@@ -129,19 +133,19 @@ public class Signup extends JFrame {
                 return;
             }
 
-            // --- KIỂM TRA ĐỊNH DẠNG EMAIL ---
+            // KIỂM TRA ĐỊNH DẠNG EMAIL bằng Regex (X@Y.com)
             if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
                 JOptionPane.showMessageDialog(this, "Định dạng Email không hợp lệ!\n(Ví dụ: email@gmail.com)", "Lỗi Email", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // --- KIỂM TRA ĐỊNH DẠNG SỐ ĐIỆN THOẠI (10 CHỮ SỐ) ---
+            // KIỂM TRA ĐỊNH DẠNG SỐ ĐIỆN THOẠI (Yêu cầu chính xác 10 chữ số)
             if (!phone.matches("^\\d{10}$")) {
                 JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ!\n(Phải bao gồm chính xác 10 chữ số)", "Lỗi Số điện thoại", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            // --- CẬP NHẬT DATABASE INSERT ---
+            // Lệnh SQL INSERT tài khoản mới vào database
             String sql = "INSERT INTO accounts (email, username, phone_number, password) VALUES (?, ?, ?, ?)";
 
             try (Connection conn = Database.getConnection();
@@ -155,23 +159,26 @@ public class Signup extends JFrame {
 
                 JOptionPane.showMessageDialog(this, "Đã tạo tài khoản thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 
+                // Clear form sau khi đăng ký xong
                 userField.setText("");
                 emailField.setText("");
                 phoneField.setText("");
                 passField.setText("");
 
             } catch (SQLIntegrityConstraintViolationException ex) {
+                // Báo lỗi nếu Email nhập vào bị trùng với Email đã có trong CSDL (Do setup Unique trong db)
                 JOptionPane.showMessageDialog(this, "Email này đã được đăng ký!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Lỗi kết nối cơ sở dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         });
         
+        // Nút BACK quay về màn hình Đăng nhập
         JComponent cancelBtn = outlineButton("Back", PRIMARY_DARK, TEXT, ACCENT, () -> {
             gameMusic.playMenuClick();
             dangnhap login = new dangnhap();
             login.setVisible(true);
-            dispose();
+            dispose(); // Hủy màn đăng ký
         });
 
         actions.add(createBtn);
@@ -191,6 +198,7 @@ public class Signup extends JFrame {
         setVisible(true);
     }
 
+    // Các hàm Helper tạo UI giống hệt dangnhap.java (Giữ nguyên)
     private static JLabel label(String text, Color fg) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.PLAIN, 16));

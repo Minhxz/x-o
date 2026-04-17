@@ -10,13 +10,14 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+// Màn hình chính của trò chơi (Bảng cờ caro)
 public class Play extends JFrame {
 
-    private JLabel statusLabel;
-    private JLabel timerLabel;
-    private JLabel player1ScoreLabel;
-    private JLabel player2ScoreLabel;
-    private JButton[] boardButtons;
+    private JLabel statusLabel; // Hiển thị "Đến lượt ai"
+    private JLabel timerLabel; // Hiển thị thời gian đếm ngược
+    private JLabel player1ScoreLabel; // Thẻ điểm của P1
+    private JLabel player2ScoreLabel; // Thẻ điểm của P2
+    private JButton[] boardButtons; // Danh sách các nút làm ô cờ (sẽ truyền cho lớp Logic xử lý)
 
     public Play() {
         Theme theme = logic.getTheme();
@@ -41,6 +42,7 @@ public class Play extends JFrame {
         root.setBorder(new EmptyBorder(20, 30, 25, 30));
         setContentPane(root);
 
+        // HEADER: Thanh trên cùng (Tên Game + Music, History, Exit)
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
         headerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -50,7 +52,7 @@ public class Play extends JFrame {
         titleLabel.setForeground(ACCENT);
         headerPanel.add(titleLabel, BorderLayout.WEST);
 
-        // Updated grid layout to 3 columns since the setting button is removed
+        // Navbar chia 3 cột 
         JPanel navBar = new JPanel(new GridLayout(1, 3, 12, 0));
         navBar.setOpaque(false);
 
@@ -65,6 +67,7 @@ public class Play extends JFrame {
         headerPanel.add(navBar, BorderLayout.EAST);
         root.add(headerPanel, BorderLayout.NORTH);
 
+        // CENTER: Phần khung chứa Bảng Cờ và Thẻ Điểm
         JPanel mid = new JPanel(new GridBagLayout());
         mid.setOpaque(false);
         mid.setBorder(new EmptyBorder(20, 30, 15, 30));
@@ -74,22 +77,26 @@ public class Play extends JFrame {
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 30, 0, 30);
 
+        // Thẻ điểm Người chơi 1 (Bên Trái)
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.WEST;
         JComponent player1Card = scoreCard(logic.getP1Name(), "SCORE", PRIMARY, TEXT_DARK, TEXT, true, ACCENT);
         mid.add(player1Card, gbc);
 
+        // Thẻ điểm Người chơi 2 (Bên Phải)
         gbc.gridx = 2;
         gbc.anchor = GridBagConstraints.EAST;
         JComponent player2Card = scoreCard(logic.getP2Name(), "SCORE", PRIMARY, TEXT_DARK, TEXT, false, ACCENT);
         mid.add(player2Card, gbc);
 
+        // Khung Bảng cờ (Ở Giữa)
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.CENTER;
 
         JPanel boardContainer = new JPanel(new BorderLayout());
         boardContainer.setOpaque(false);
 
+        // Tiêu đề của khung cờ (Trạng thái lượt + Đếm ngược)
         JPanel boardHeader = new JPanel(new GridLayout(2, 1));
         boardHeader.setOpaque(false);
         boardHeader.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -106,14 +113,17 @@ public class Play extends JFrame {
 
         boardContainer.add(boardHeader, BorderLayout.NORTH);
 
+        // Tạo bàn cờ (GridLayout) dựa theo setting của Logic
         int boardSize = logic.getBoardSize();
         JComponent boardComponent = createBoardPanel(boardSize, BOARD_BG, TILE_BG, TEXT, ACCENT);
         boardContainer.add(boardComponent, BorderLayout.CENTER);
 
         mid.add(boardContainer, gbc);
 
+        // SAU KHI VẼ XONG UI: Truyền tất cả biến tham chiếu qua cho Lớp logic xử lý
         logic.initMenuGame(boardButtons, statusLabel, player1ScoreLabel, player2ScoreLabel, timerLabel);
 
+        // FOOTER: 2 nút New Game & Về Menu
         JPanel bottom = new JPanel(new GridBagLayout());
         bottom.setOpaque(false);
         bottom.setBorder(new EmptyBorder(10, 0, 5, 0));
@@ -127,7 +137,7 @@ public class Play extends JFrame {
         bottom.add(newGameBtn, bottomGbc);
 
         JComponent backBtn = actionButton("Back to Menu", PRIMARY, TEXT, ACCENT, () -> {
-            logic.stopTimer();
+            logic.stopTimer(); // Ngắt giờ trước khi về Menu
             dispose();
             MainMenu menu = new MainMenu();
             menu.setVisible(true);
@@ -141,6 +151,7 @@ public class Play extends JFrame {
         repaint();
     }
 
+    // Các thành phần UI Con: Nút trên thanh điều hướng
     private static JComponent navButton(String text, Color fg, Color glow, Runnable action) {
         JButton btn = baseButton(text, fg, 16);
         RoundedButton wrap = new RoundedButton(16, new Color(0, 0, 0, 140), glow);
@@ -153,6 +164,7 @@ public class Play extends JFrame {
         return wrap;
     }
 
+    // Nút chức năng to (Footer)
     private static JComponent actionButton(String text, Color bg, Color fg, Color glow, Runnable action) {
         JButton btn = baseButton(text, fg, 18);
         RoundedButton wrap = new RoundedButton(18, bg, glow);
@@ -165,6 +177,7 @@ public class Play extends JFrame {
         return wrap;
     }
 
+    // Khởi tạo phôi nút bấm Swing trơn trong suốt
     private static JButton baseButton(String text, Color fg, int fontSize) {
         JButton b = new JButton(text);
         b.setForeground(fg);
@@ -177,6 +190,7 @@ public class Play extends JFrame {
         return b;
     }
 
+    // Thiết kế Thẻ hiển thị Điểm của người chơi
     private JComponent scoreCard(String player, String scoreWord, Color cardColor, Color titleColor, Color scoreColor, boolean isPlayer1, Color glow) {
         RoundedPanel card = new RoundedPanel(22);
         card.setBackground(cardColor);
@@ -193,6 +207,7 @@ public class Play extends JFrame {
         scoreLbl.setForeground(scoreColor);
         scoreLbl.setFont(new Font("SansSerif", Font.BOLD, 90));
 
+        // Lưu thẻ JLabel vào biến Global để Lớp logic có thể lấy thẻ và cộng điểm
         if(isPlayer1) player1ScoreLabel = scoreLbl; else player2ScoreLabel = scoreLbl;
 
         card.add(title, BorderLayout.NORTH);
@@ -204,12 +219,14 @@ public class Play extends JFrame {
         return wrap;
     }
 
+    // Khởi tạo và vẽ mạng lưới Bàn cờ (Các ô cờ)
     private JComponent createBoardPanel(int size, Color boardBg, Color tileBg, Color markColor, Color glow) {
+        // Nếu chơi 3x3 thì khoảng cách (gap) to ra, 5x5 thì gap bé lại
         int gap = (size == 3) ? 14 : 10;
         RoundedPanel boardWrap = new RoundedPanel(26);
         boardWrap.setBackground(boardBg);
         boardWrap.setBorder(new EmptyBorder(22, 22, 22, 22));
-        boardWrap.setLayout(new GridLayout(size, size, gap, gap));
+        boardWrap.setLayout(new GridLayout(size, size, gap, gap)); // Chia lưới GridLayout
 
         int boardPx = 440;
         Dimension fixedSize = new Dimension(boardPx, boardPx);
@@ -217,10 +234,12 @@ public class Play extends JFrame {
         boardWrap.setMinimumSize(fixedSize);
         boardWrap.setMaximumSize(fixedSize);
 
+        // Ký tự trong cờ của bàn 5x5 cần nhỏ gọn hơn
         int fontSize = (size == 3) ? 68 : 36;
         Font markFont = new Font("SansSerif", Font.BOLD, fontSize);
         boardButtons = new JButton[size * size];
 
+        // Duyệt tạo tất cả các Nút (ô cờ)
         for (int i = 0; i < size * size; i++) {
             final JButton cell = new JButton("");
             cell.setFont(markFont);
@@ -231,10 +250,12 @@ public class Play extends JFrame {
             cell.setOpaque(false);
             cell.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-            boardButtons[i] = cell;
+            boardButtons[i] = cell; // Lưu vào mảng
             int index = i;
+            // BẮT SỰ KIỆN: Nếu nhấn vào ô nào thì văng qua hàm logic xử lý
             cell.addActionListener(e -> logic.handleBoardClick(boardButtons[index]));
 
+            // Đóng khung thẩm mỹ
             RoundedButton tile = new RoundedButton(16, tileBg, glow);
             if (size > 3) tile.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 80), 1));
             tile.setLayout(new BorderLayout());
@@ -249,6 +270,7 @@ public class Play extends JFrame {
         return center;
     }
 
+    // Các class con UI Vẽ giao diện (Tương tự MainMenu)
     static class GradientPanel extends JPanel {
         private final Color top; private final Color bottom;
         GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }
@@ -268,13 +290,14 @@ public class Play extends JFrame {
             g2.dispose(); super.paintComponent(g);
         }
     }
+    // Lớp đặc biệt vẽ thêm bóng đổ (Drop Shadow) ra bên ngoài khung viền
     static class GlowPanel extends JPanel {
         private final int arc; private final Color glow;
         GlowPanel(int arc, Color glow) { this.arc = arc; this.glow = glow; setOpaque(false); }
         @Override protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(new Color(glow.getRed(), glow.getGreen(), glow.getBlue(), 60));
+            g2.setColor(new Color(glow.getRed(), glow.getGreen(), glow.getBlue(), 60)); // Màu phát sáng nhạt
             g2.fillRoundRect(2, 4, getWidth() - 4, getHeight() - 4, arc, arc);
             g2.dispose(); super.paintComponent(g);
         }
@@ -292,6 +315,7 @@ public class Play extends JFrame {
             g2.dispose(); super.paintComponent(g);
         }
     }
+    // Cảm biến chuột: Bắt sự kiện rọi chuột qua để nút bấm đổi màu phát sáng
     static class HoverEffect extends MouseAdapter {
         private final RoundedButton target; HoverEffect(RoundedButton target) { this.target = target; }
         @Override public void mouseEntered(MouseEvent e) { target.setHover(true); }

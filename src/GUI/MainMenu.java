@@ -10,9 +10,11 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+// Giao diện LOBBY/Menu chính của Game
 public class MainMenu extends JFrame {
 
     public MainMenu() {
+        // Tải nhạc nền ngay khi mở Game (Nếu isBgmMuted = false)
         Music.gameMusic.playBackgroundMusic();
 
         Theme theme = logic.getTheme();
@@ -34,7 +36,7 @@ public class MainMenu extends JFrame {
         root.setBorder(new EmptyBorder(10, 30, 20, 30));
         setContentPane(root);
 
-        // Changed Header to BorderLayout to support Top-Right positioning
+        // Header phía trên cùng (Trái là Tên game, Phải là nút Profile)
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
         headerPanel.setBorder(new EmptyBorder(10, 10, 5, 10));
@@ -51,9 +53,9 @@ public class MainMenu extends JFrame {
         titleBox.add(titleLabel);
         titleBox.add(Box.createVerticalStrut(6));
         titleBox.add(subTitle);
-        headerPanel.add(titleBox, BorderLayout.WEST); // Title on the Left
+        headerPanel.add(titleBox, BorderLayout.WEST); 
 
-        // Profile / Logout Button on the Right
+        // Nút bấm Profile (Đăng xuất)
         JPanel navBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         navBar.setOpaque(false);
         JComponent profileBtn = navButton("👤 Profile", TEXT, ACCENT, () -> MenuActions.showProfileDialog(this));
@@ -62,16 +64,19 @@ public class MainMenu extends JFrame {
 
         root.add(headerPanel, BorderLayout.NORTH);
 
+        // Center Box: Chứa danh sách các Nút lựa chọn (Play, Mode, History...)
         JPanel center = new JPanel(new GridBagLayout());
         center.setOpaque(false);
         center.setBorder(new EmptyBorder(10, 20, 20, 20));
 
         RoundedPanel menuCard = new RoundedPanel(28);
-        menuCard.setBackground(new Color(0, 0, 0, 130));
+        menuCard.setBackground(new Color(0, 0, 0, 130)); // Đen trong suốt 50%
         menuCard.setBorder(new EmptyBorder(20, 60, 20, 60));
         
+        // GridLayout 7 hàng 1 cột (7 nút menu)
         menuCard.setLayout(new GridLayout(7, 1, 0, 10));
 
+        // Khai báo và gán sự kiện cho từng Nút bằng cách tham chiếu hàm tĩnh ở MenuActions
         JComponent playBtn = gameButton("▶ Play", PRIMARY, TEXT, ACCENT, () -> MenuActions.openPlay(this));
         JComponent nameBtn = gameButton("✏ Names", PRIMARY, TEXT, ACCENT, () -> MenuActions.showNameDialog(this));
         JComponent modeBtn = gameButton("⚙ Mode", PRIMARY, TEXT, ACCENT, () -> MenuActions.showModeDialog(this));
@@ -91,6 +96,7 @@ public class MainMenu extends JFrame {
         center.add(menuCard);
         root.add(center, BorderLayout.CENTER);
 
+        // Footer: Chữ gợi ý mờ nhạt bên dưới cùng
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER));
         footer.setOpaque(false);
         JLabel hint = new JLabel("Tip: Use the settings to switch board size and theme!");
@@ -100,6 +106,7 @@ public class MainMenu extends JFrame {
         root.add(footer, BorderLayout.SOUTH);
     }
 
+    // Nút điều hướng góc phải
     private static JComponent navButton(String text, Color fg, Color glow, Runnable action) {
         JButton btn = new JButton(text);
         btn.setForeground(fg);
@@ -123,6 +130,7 @@ public class MainMenu extends JFrame {
         return wrap;
     }
 
+    // Nút Menu ở chính giữa màn hình (Kích thước to hơn)
     private static JComponent gameButton(String text, Color bg, Color fg, Color glow, Runnable action) {
         JButton btn = new JButton(text);
         btn.setForeground(fg);
@@ -152,6 +160,7 @@ public class MainMenu extends JFrame {
         return wrap;
     }
 
+    // Các class vẽ giao diện Helper (Gradient, bo góc)
     static class GradientPanel extends JPanel {
         private final Color top; private final Color bottom;
         GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }

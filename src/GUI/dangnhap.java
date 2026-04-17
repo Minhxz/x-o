@@ -14,9 +14,11 @@ import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+// Lớp màn hình Đăng nhập
 public class dangnhap extends JFrame {
 
     public dangnhap() {
+        // Khởi tạo màu theo Theme
         Theme theme = logic.getTheme();
         Color BG = theme.background;
         Color PRIMARY = theme.primary;
@@ -24,17 +26,20 @@ public class dangnhap extends JFrame {
         Color TEXT = theme.text;
         Color ACCENT = theme.accent;
 
+        // Cấu hình cửa sổ Game (Phóng to mặc định)
         setTitle("Player Login");
         setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+        // Nền giao diện Gradient màu xịn xò
         GradientPanel root = new GradientPanel(BG, PRIMARY_DARK.darker());
         root.setLayout(new BorderLayout());
         root.setBorder(new EmptyBorder(40, 30, 30, 30));
         setContentPane(root);
 
+        // Header: WELCOME BACK
         JPanel header = new JPanel();
         header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
@@ -51,6 +56,7 @@ public class dangnhap extends JFrame {
         header.add(subtitle);
         root.add(header, BorderLayout.NORTH);
 
+        // Container Box ở giữa màn hình
         JPanel content = new JPanel(new GridBagLayout());
         content.setOpaque(false);
         GridBagConstraints gbcRoot = new GridBagConstraints();
@@ -61,6 +67,7 @@ public class dangnhap extends JFrame {
         gbcRoot.weightx = 1;
         gbcRoot.weighty = 1;
 
+        // Bảng nền đen trong suốt bọc các TextField
         RoundedPanel formCard = new RoundedPanel(28);
         formCard.setBackground(new Color(0, 0, 0, 150));
         formCard.setBorder(new EmptyBorder(40, 50, 40, 50));
@@ -72,6 +79,7 @@ public class dangnhap extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
 
+        // Khai báo các Input field
         JLabel userLabel = label("Tên người dùng:", TEXT);
         JTextField userField = field("Nhập tên người dùng...");
         JLabel emailLabel = label("Email:", TEXT);
@@ -83,6 +91,7 @@ public class dangnhap extends JFrame {
         emailField.setPreferredSize(new Dimension(300, 45));
         passField.setPreferredSize(new Dimension(300, 45));
 
+        // Add các elements vào Layout
         gbc.insets = new Insets(0, 0, 5, 0);
         formCard.add(userLabel, gbc);
         gbc.gridy++;
@@ -103,9 +112,11 @@ public class dangnhap extends JFrame {
         gbc.insets = new Insets(0, 0, 30, 0);
         formCard.add(passField, gbc);
 
+        // Khu vực chứa nút bấm
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         actions.setOpaque(false);
 
+        // Nút LOGIN và Xử lý SQL
         JComponent loginBtn = actionButton("LOGIN", PRIMARY, TEXT, ACCENT, () -> {
             gameMusic.playMenuClick(); 
             
@@ -113,6 +124,7 @@ public class dangnhap extends JFrame {
             String emailInput = emailField.getText().trim();
             String passwordInput = new String(passField.getPassword());
             
+            // Bắt lỗi Validation
             if (userInput.isEmpty() || emailInput.isEmpty() || passwordInput.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
@@ -123,6 +135,7 @@ public class dangnhap extends JFrame {
                 return;
             }
 
+            // Dùng PreparedStatement để chống SQL Injection
             String sql = "SELECT * FROM accounts WHERE email = ? AND password = ?";
 
             try (Connection conn = Database.getConnection();
@@ -136,14 +149,15 @@ public class dangnhap extends JFrame {
                     String dbUsername = rs.getString("username");
                     
                     if (dbUsername.equals(userInput)) {
-                        // --- CRITICAL UPDATE: PASS EMAIL TO LOGIC ---
+                        // Pass email người dùng vào logic server để lưu lịch sử
                         logic.setCurrentAccountEmail(emailInput); 
                         logic.setPlayerNames(dbUsername, "Player 2"); 
-                        
                         logic.setPlayerSymbols("X", "O"); 
+
+                        // Đăng nhập đúng, mở MainMenu
                         MainMenu menu = new MainMenu();
                         menu.setVisible(true);
-                        dispose();
+                        dispose(); // Hủy cửa sổ này
                     } else {
                         JOptionPane.showMessageDialog(this, "Tên người dùng không khớp!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
@@ -156,6 +170,7 @@ public class dangnhap extends JFrame {
             }
         });
         
+        // Nút Đăng ký (Sign Up) -> Dẫn sang màn Signup
         JComponent signupBtn = outlineButton("Sign Up", PRIMARY_DARK, TEXT, ACCENT, () -> {
             gameMusic.playMenuClick();
             Signup signup = new Signup();
@@ -180,10 +195,9 @@ public class dangnhap extends JFrame {
         setVisible(true);
     }
 
-    // Helper methods (label, field, passwordField, actionButton, outlineButton) 
-    // and inner classes (GradientPanel, RoundedPanel, RoundedButton) 
-    // remain exactly the same as your provided code...
-    
+    // ==========================================
+    // CÁC HÀM VÀ CLASS ĐỂ TẠO UI CUSTOM BÊN DƯỚI
+    // ==========================================
     private static JLabel label(String text, Color fg) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.PLAIN, 16)); 
@@ -191,6 +205,7 @@ public class dangnhap extends JFrame {
         return label;
     }
 
+    // Text field có Placeholder (chữ mờ khi chưa nhập)
     private static JTextField field(String placeholder) {
         JTextField field = new JTextField() {
             @Override protected void paintComponent(Graphics g) {
@@ -249,6 +264,7 @@ public class dangnhap extends JFrame {
         return field;
     }
 
+    // Nút bấm có bo góc (Button)
     private static JComponent actionButton(String text, Color base, Color fg, Color glow, Runnable action) {
         JButton btn = new JButton(text);
         btn.setForeground(fg);
@@ -295,6 +311,7 @@ public class dangnhap extends JFrame {
         return wrap;
     }
 
+    // Lớp nội (Inner Class) tạo nền gradient
     static class GradientPanel extends JPanel {
         private final Color top; private final Color bottom;
         GradientPanel(Color top, Color bottom) { this.top = top; this.bottom = bottom; setOpaque(false); }
@@ -307,6 +324,7 @@ public class dangnhap extends JFrame {
         }
     }
 
+    // Panel bo tròn 4 góc cho form Card
     static class RoundedPanel extends JPanel {
         private final int arc;
         RoundedPanel(int arc) { this.arc = arc; setOpaque(false); }
@@ -319,6 +337,7 @@ public class dangnhap extends JFrame {
         }
     }
 
+    // Button bo tròn có Hover Effect (Đổi màu khi rê chuột)
     static class RoundedButton extends JPanel {
         private final int arc; private final Color base; private final Color glow; private boolean hover;
         RoundedButton(int arc, Color base, Color glow) { this.arc = arc; this.base = base; this.glow = glow; setOpaque(false); }

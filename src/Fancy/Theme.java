@@ -2,6 +2,7 @@ package Fancy;
 
 import java.awt.Color;
 
+// Lớp định nghĩa cấu hình bảng màu (Color Palette) cho game
 public class Theme {
     public final String name;
     public final Color background;
@@ -25,43 +26,43 @@ public class Theme {
         this.accent = accent;
     }
 
-    // THEME CAM (Đã được chỉnh thành EARTH để mặc định khi mở game)
+    // THEME 1: Màu Nâu/Cam Đất
     public static final Theme EARTH = new Theme(
             "Sunset Orange",
-            new Color(0x2D0F02), // Background: Nâu cam cực đậm (tạo độ sâu)
-            new Color(0xD9480F), // Primary: Cam cháy (màu chủ đạo)
+            new Color(0x2D0F02), // Background: Nâu cam cực đậm
+            new Color(0xD9480F), // Primary: Cam cháy 
             new Color(0x7B2005), // PrimaryDark: Cam đất tối
-            new Color(0xFFD8A8), // Board: Màu kem cam nhạt (dễ nhìn quân cờ)
-            new Color(0xF76707), // Tile: Cam tươi cho các ô cờ
+            new Color(0xFFD8A8), // Board: Màu kem cam nhạt 
+            new Color(0xF76707), // Tile: Cam tươi 
             Color.WHITE,         // Text: Trắng
             new Color(0x431407), // TextDark: Nâu đen
-            new Color(0xFFD43B)  // Accent: Vàng rực cho các điểm nhấn
+            new Color(0xFFD43B)  // Accent: Vàng rực
     );
 
-    // THEME XANH LỤC BẢO
+    // THEME 2: XANH LỤC BẢO
     public static final Theme FIRE = new Theme(
             "Emerald Forest",
-            new Color(0x022C22), // Background: Xanh đen lục bảo
-            new Color(0x10B981), // Primary: Xanh lục sáng
-            new Color(0x064E3B), // PrimaryDark: Xanh rừng sâu
-            new Color(0xD1FAE5), // Board: Xanh bạc hà rất nhạt
-            new Color(0x059669), // Tile: Xanh lá đậm
-            Color.WHITE,         // Text: Trắng
-            new Color(0x022C22), // TextDark: Xanh đen
-            new Color(0x34D399)  // Accent: Xanh ngọc
+            new Color(0x022C22), 
+            new Color(0x10B981), 
+            new Color(0x064E3B), 
+            new Color(0xD1FAE5), 
+            new Color(0x059669), 
+            Color.WHITE,         
+            new Color(0x022C22), 
+            new Color(0x34D399)  
     );
 
-    // THEME XANH NAVY
+    // THEME 3: XANH NAVY
     public static final Theme WATER = new Theme(
             "Deep Ocean",
-            new Color(0x0F172A), // Background: Xanh Navy tối (Slate)
-            new Color(0x2563EB), // Primary: Xanh dương chuẩn
-            new Color(0x1E3A8A), // PrimaryDark: Xanh biển sâu
-            new Color(0xDBEAFE), // Board: Xanh lam nhạt
-            new Color(0x3B82F6), // Tile: Xanh dương sáng
-            Color.WHITE,         // Text: Trắng
-            new Color(0x1E293B), // TextDark: Xám xanh đậm
-            new Color(0x7DD3FC)  // Accent: Xanh lơ (Cyan)
+            new Color(0x0F172A), 
+            new Color(0x2563EB), 
+            new Color(0x1E3A8A), 
+            new Color(0xDBEAFE), 
+            new Color(0x3B82F6), 
+            Color.WHITE,         
+            new Color(0x1E293B), 
+            new Color(0x7DD3FC)  
     );
 
     public static Theme[] presets() {

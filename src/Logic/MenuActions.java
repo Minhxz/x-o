@@ -5,7 +5,7 @@ import Fancy.Characters;
 import Fancy.Theme;
 import GUI.MainMenu;
 import GUI.Play;
-import GUI.dangnhap; // <-- Imported dangnhap for Logout redirection
+import GUI.dangnhap; // <-- Imported dangnhap cho tính năng Đăng xuất
 import Music.gameMusic;
 
 import javax.swing.*;
@@ -21,6 +21,7 @@ import java.util.Vector;
 
 public class MenuActions {
 
+    // Mở màn hình chơi game
     public static void openPlay(JFrame parent) {
         Play ui = new Play();
         ui.setVisible(true);
@@ -29,6 +30,7 @@ public class MenuActions {
         }
     }
 
+    // Hiển thị khung popup để đổi tên 2 người chơi
     public static void showNameDialog(JFrame parent) {
         String p1 = themedTextInputDialog(parent, "Enter Player 1 Name:", "Names", logic.getP1Name());
         if (p1 == null) return;
@@ -40,6 +42,7 @@ public class MenuActions {
         themedMessageDialog(parent, "Names updated to:\n1. " + p1 + "\n2. " + p2, "Names");
     }
 
+    // Hiển thị khung popup chọn giới hạn thời gian một lượt (Timer)
     public static void showTimerDialog(JFrame parent) {
         String[] options = {"Off", "5 seconds", "10 seconds", "15 seconds"};
         
@@ -60,6 +63,7 @@ public class MenuActions {
         themedMessageDialog(parent, "Timer set to " + choice, "Timer");
     }
 
+    // Khung popup để đổi chế độ (3x3 vs 5x5, Đánh với người vs Đánh với AI)
     public static void showModeDialog(JFrame parent) {
         String[] sizeOptions = {"3x3", "5x5"};
         String sizeChoice = themedInputDialog(parent, "Choose board size", "Mode", sizeOptions, sizeOptions[0]);
@@ -75,6 +79,7 @@ public class MenuActions {
             logic.setBoardSize(5);
         }
 
+        // Nếu đánh với máy thì sẽ mở thêm 1 bảng chọn độ khó
         if (modeChoice.startsWith("Human vs AI")) {
             String[] difficultyOptions = {"Easy", "Normal", "Hard"};
             String difficultyChoice = themedInputDialog(parent, "Choose AI difficulty", "Difficulty", difficultyOptions, difficultyOptions[1]);
@@ -89,7 +94,7 @@ public class MenuActions {
 
             logic.setAiEnabled(true);
             logic.setAiDifficulty(difficulty);
-            logic.setAiSymbol("🤖");
+            logic.setAiSymbol("🤖"); // Ký hiệu của AI trên bàn cờ
             themedMessageDialog(parent, "Mode set to " + sizeChoice + " - Human vs AI (" + difficultyChoice + ")", "Mode");
             return;
         }
@@ -98,6 +103,7 @@ public class MenuActions {
         themedMessageDialog(parent, "Mode set to " + sizeChoice + " - Human vs Human", "Mode");
     }
 
+    // Đổi Theme (Màu nền, màu chữ...)
     public static void showThemeDialog(JFrame parent) {
         Theme[] themes = Theme.presets();
         String[] names = new String[themes.length];
@@ -110,6 +116,7 @@ public class MenuActions {
         if (selected != null) {
             logic.setTheme(selected);
             themedMessageDialog(parent, "Theme set to " + selected.name, "Theme");
+            // Tải lại Menu chính để cập nhật màu mới
             if (parent != null) {
                 SwingUtilities.invokeLater(() -> {
                     parent.dispose();
@@ -120,6 +127,7 @@ public class MenuActions {
         }
     }
 
+    // Thay đổi ký hiệu đánh (X, O, ★, ♥...)
     public static void showCharacterDialog(JFrame parent) {
         String[] options = Characters.names();
         String player1 = themedInputDialog(parent, "Player 1 character", "Character", options, options[0]);
@@ -131,6 +139,7 @@ public class MenuActions {
         themedMessageDialog(parent, "Characters set to " + player1 + " and " + player2, "Character");
     }
 
+    // Tắt mở âm thanh
     public static void showMusicDialog(JFrame parent) {
         String[] options = {"Toggle BGM", "Toggle SFX", "Cancel"};
         withTheme(logic.getTheme(), () -> {
@@ -144,13 +153,13 @@ public class MenuActions {
                     options,
                     options[0]
             );
-            if (choice == 0) gameMusic.toggleBGM();
-            else if (choice == 1) gameMusic.toggleSFX();
+            if (choice == 0) gameMusic.toggleBGM(); // Nhạc nền
+            else if (choice == 1) gameMusic.toggleSFX(); // Nhạc hiệu ứng
             return null;
         });
     }
 
-    // --- PROFILE / LOGOUT METHOD ---
+    // Mở popup chứa thông tin tài khoản hiện tại và chức năng Đăng xuất
     public static void showProfileDialog(JFrame parent) {
         String currentEmail = logic.getCurrentAccountEmail();
         if (currentEmail == null || currentEmail.isEmpty()) {
@@ -172,17 +181,18 @@ public class MenuActions {
                     options[1]
             );
 
-            if (choice == 0) { // If user clicked "Logout"
-                logic.setCurrentAccountEmail(""); // Clear the session
+            if (choice == 0) { 
+                logic.setCurrentAccountEmail(""); // Đăng xuất: xóa dữ liệu email phiên bản
                 if (parent != null) {
-                    parent.dispose(); // Close current Main Menu
+                    parent.dispose(); 
                 }
-                new dangnhap(); // Open Login Form
+                new dangnhap(); // Mở lại form Login
             }
             return null;
         });
     }
 
+    // Kéo dữ liệu từ database về và vẽ bảng lịch sử History
     public static void showHistory(JFrame parent) {
         String query = "SELECT * FROM history"; 
 
@@ -190,6 +200,7 @@ public class MenuActions {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
+            // Lấy tên các cột của DB để làm Header cho bảng
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
             Vector<String> columnNames = new Vector<>();
@@ -197,6 +208,7 @@ public class MenuActions {
                 columnNames.add(metaData.getColumnName(column));
             }
 
+            // Đẩy tất cả Data dòng thành mảng 2 chiều
             Vector<Vector<Object>> data = new Vector<>();
             while (rs.next()) {
                 Vector<Object> row = new Vector<>();
@@ -206,6 +218,7 @@ public class MenuActions {
                 data.add(row);
             }
 
+            // Cấu hình bảng JTable của Java Swing
             JTable table = new JTable(data, columnNames);
             table.setFillsViewportHeight(true);
             table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -213,26 +226,24 @@ public class MenuActions {
             table.setRowHeight(25);
             table.setEnabled(false); 
 
-            // --- Điều chỉnh độ rộng cột linh hoạt ---
+            // Điều chỉnh độ rộng cột linh hoạt (id ngắn lại, date_time dài ra)
             table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
             for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
                 String colName = table.getColumnName(i).toLowerCase();
                 
                 if (colName.equals("id")) {
-                    // Thu hẹp cột ID
                     table.getColumnModel().getColumn(i).setPreferredWidth(50);
                     table.getColumnModel().getColumn(i).setMaxWidth(80); 
                 } else if (colName.contains("time") || colName.contains("date")) {
-                    // Mở rộng cột thời gian (match_time/match_date)
                     table.getColumnModel().getColumn(i).setPreferredWidth(250);
                 } else {
-                    // Kích thước mặc định cho các cột còn lại (email, tên, winner)
                     table.getColumnModel().getColumn(i).setPreferredWidth(150);
                 }
             }
 
+            // Đưa JTable vào JScrollPane để có thể cuộn chuột
             JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new Dimension(900, 450)); // Tăng kích thước cửa sổ lên 900x450
+            scrollPane.setPreferredSize(new Dimension(900, 450)); 
 
             withTheme(logic.getTheme(), () -> {
                 JOptionPane.showMessageDialog(parent, scrollPane, "Match History", JOptionPane.PLAIN_MESSAGE);
@@ -245,6 +256,8 @@ public class MenuActions {
         }
     }
 
+    // Các hàm Helper dùng để tạo các JDialog mang phong cách theo Theme hiện tại 
+    // chứ không dùng JDialog màu xám mặc định của Windows/Java
     private static String themedInputDialog(JFrame parent, String message, String title, String[] options, String initial) {
         return withTheme(logic.getTheme(), () -> {
             JOptionPane pane = new JOptionPane(message, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
@@ -284,11 +297,13 @@ public class MenuActions {
         });
     }
 
+    // Kỹ thuật ép toàn bộ UIManager của Swing đổi màu, sau đó chạy lệnh, chạy xong thì trả về màu cũ
     private static <T> T withTheme(Theme theme, ThemeDialogAction<T> action) {
         Map<String, Object> oldValues = new HashMap<>();
         String[] keys = {"OptionPane.background", "Panel.background", "OptionPane.messageForeground", "OptionPane.messageFont", "OptionPane.buttonFont", "Button.foreground", "ComboBox.background", "ComboBox.foreground", "ComboBox.selectionBackground", "ComboBox.selectionForeground", "ComboBox.font"};
-        for (String key : keys) oldValues.put(key, UIManager.get(key));
+        for (String key : keys) oldValues.put(key, UIManager.get(key)); // Lưu màu cũ
 
+        // Thay bằng màu của Theme game
         UIManager.put("OptionPane.background", theme.primaryDark.darker());
         UIManager.put("Panel.background", theme.primaryDark.darker());
         UIManager.put("OptionPane.messageForeground", theme.text);
@@ -302,8 +317,9 @@ public class MenuActions {
         UIManager.put("ComboBox.font", new Font("SansSerif", Font.BOLD, 14));
 
         try {
-            return action.run();
+            return action.run(); // Chạy hiển thị hộp thoại
         } finally {
+            // Trả lại màu cũ cho Swing để không ảnh hưởng chỗ khác
             for (Map.Entry<String, Object> entry : oldValues.entrySet()) {
                 UIManager.put(entry.getKey(), entry.getValue());
             }

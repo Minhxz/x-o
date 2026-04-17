@@ -3,7 +3,8 @@ import java.awt.*;
 import javax.swing.*;
 
 public class Main {
-    // Hàm tiện ích để đồng bộ font chữ cho tất cả các thành phần UI (Nút, Nhãn, Textfield...)
+    // Hàm này duyệt qua tất cả các thành phần UI mặc định của Java Swing
+    // và ép chúng sử dụng chung một font chữ do mình cài đặt
     private static void setGlobalFont(Font font) {
         for (Object key : UIManager.getDefaults().keySet()) {
             Object value = UIManager.get(key);
@@ -14,19 +15,22 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        // Chạy giao diện trên Event Dispatch Thread (EDT) để đảm bảo thread-safe cho Swing
+        // invokeLater giúp chạy giao diện trên Event Dispatch Thread (luồng riêng của Swing),
+        // tránh các lỗi giật lag hoặc xung đột khi render UI
         javax.swing.SwingUtilities.invokeLater(() -> {
             try {
-                // Áp dụng giao diện (Look and Feel) mặc định của hệ điều hành
+                // Sử dụng giao diện (Look & Feel) mặc định của hệ điều hành đang chạy (Windows/Mac)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ignored) {
             }
 
-            // Đặt font chữ chung là SansSerif, kích thước 16
+            // Đặt font chữ mặc định cho toàn bộ game là SansSerif, size 16
             setGlobalFont(new Font("SansSerif", Font.PLAIN, 16));
             
-            // Khởi tạo và hiển thị màn hình đăng nhập đầu tiên
+            // Khởi tạo màn hình đăng nhập đầu tiên khi chạy game
             new dangnhap();
         });     
     }
 }
+
+
